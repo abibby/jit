@@ -23,11 +23,12 @@ func SetStatus(c *jira.Client, issueKey, status string) error {
 	}
 
 	for _, transition := range transitions {
-		if transition.Name == status {
+		if transition.To.Name == status {
 			_, err = c.Issue.DoTransition(issueKey, transition.ID)
 			if err != nil {
 				return err
 			}
+			return nil
 		}
 	}
 
