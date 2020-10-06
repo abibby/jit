@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/andygrunwald/go-jira"
@@ -42,29 +44,50 @@ func branchName(issue *jira.Issue, message string) string {
 	return viper.GetString("branch_prefix") + prepBranchName(issue.Key+" "+message)
 }
 
+func allBranches() ([]string, error) {
+	result, _, err := gitOutput("branch", "--format", "%(refname)", "--all")
+	if err != nil {
+		return nil, err
+	}
+
+	brancheMap := map[string]struct{}{}
+	re := regexp.MustCompile(`^(?:refs\/heads\/|refs\/remotes\/[^\/]+\/)(.*)$`)
+	for _, branch := range strings.Split(result, "\n") {
+		matches := re.FindStringSubmatch(branch)
+		if len(matches) > 1 {
+			brancheMap[matches[1]] = struct{}{}
+		}
+	}
+	branches := []string{}
+	for branch := range brancheMap {
+		branches = append(branches, branch)
+	}
+
+	sort.Strings(branches)
+
+	return branches, nil
+}
+
 func findBranch(issueID string) (string, error) {
-	result, _, err := gitOutput("branch", "--format", "%(refname)")
+	branches, err := allBranches()
 	if err != nil {
 		return "", err
 	}
-
-	branches := []string{}
-	branchPrefix := viper.GetString("branch_prefix") + prepBranchName(issueID)
-	ref := "refs/heads/"
-	for _, branch := range strings.Split(result, "\n") {
-		if strings.HasPrefix(branch, ref+branchPrefix) {
-			branches = append(branches, branch[len(ref):])
+	selectedBranches := []string{}
+	for _, branch := range branches {
+		if strings.Contains(strings.ToLower(branch), strings.ToLower(issueID)) {
+			selectedBranches = append(selectedBranches, branch)
 		}
 	}
-	if len(branches) == 0 {
+	if len(selectedBranches) == 0 {
 		return "", fmt.Errorf("could not find branch for jira issue %s", issueID)
 	}
-	if len(branches) == 1 {
-		return branches[0], nil
+	if len(selectedBranches) == 1 {
+		return selectedBranches[0], nil
 	}
 	prompt := promptui.Select{
 		Label: "Select Day",
-		Items: branches,
+		Items: selectedBranches,
 	}
 
 	_, selected, err := prompt.Run()
