@@ -114,6 +114,10 @@ func checkoutDefaultBranch(ctx context.Context) error {
 	if err = git("checkout", *rep.DefaultBranch); err != nil {
 		return err
 	}
+
+	if err = git("pull"); err != nil {
+		return err
+	}
 	return nil
 }
 
