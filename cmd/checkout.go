@@ -21,12 +21,16 @@ import (
 
 // checkoutCmd represents the checkout command
 var checkoutCmd = &cobra.Command{
-	Use:     "checkout <issue id>",
+	Use:     "checkout [issue id]",
 	Aliases: []string{"c"},
 	Short:   "checkout a branch from a Jira key",
 	Long:    ``,
-	Args:    cobra.ExactArgs(1),
+	Args:    cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			checkoutDefaultBranch(cmd.Context())
+			return nil
+		}
 		issueID := args[0]
 		b, err := findBranch(issueID)
 		if err != nil {
