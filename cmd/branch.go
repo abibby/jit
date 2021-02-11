@@ -100,7 +100,7 @@ func checkoutDefaultBranch(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	re := regexp.MustCompile(`(?:https?:\/\/github\.com\/|git@github\.com:)([^\/]+)\/(.+)\.git`)
+	re := regexp.MustCompile(`(?:https?:\/\/github\.com\/|git@github\.com[:/])([^\/]+)\/(.+)\.git`)
 	matches := re.FindStringSubmatch(url)
 
 	rep, _, err := gh.Repositories.Get(ctx, matches[1], matches[2])
