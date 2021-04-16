@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -94,24 +93,9 @@ func prepBranchName(str string) string {
 }
 
 func checkoutDefaultBranch(ctx context.Context) error {
-	gh := GitHubClient(ctx)
+	branch, err := defaultBranch(ctx)
 
-	url, _, err := gitOutput("remote", "get-url", "origin")
-	if err != nil {
-		return err
-	}
-	re := regexp.MustCompile(`(?:https?:\/\/github\.com\/|git@github\.com[:/])([^\/]+)\/(.+)\.git`)
-	matches := re.FindStringSubmatch(url)
-
-	rep, _, err := gh.Repositories.Get(ctx, matches[1], matches[2])
-	if err != nil {
-		return err
-	}
-	if rep.DefaultBranch == nil {
-		return fmt.Errorf("could not find default branch")
-	}
-
-	if err = git("checkout", *rep.DefaultBranch); err != nil {
+	if err = git("checkout", branch); err != nil {
 		return err
 	}
 

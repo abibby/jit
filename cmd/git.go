@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -86,7 +87,7 @@ func findBranch(issueID string) (string, error) {
 		return selectedBranches[0], nil
 	}
 	prompt := promptui.Select{
-		Label: "Select Day",
+		Label: "Select branch",
 		Items: selectedBranches,
 	}
 
@@ -98,4 +99,55 @@ func findBranch(issueID string) (string, error) {
 
 	return selected, nil
 
+}
+
+func defaultBranch(ctx context.Context) (string, error) {
+	masterBranch, err := masterBranchName(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	branches, err := allBranches()
+	if err != nil {
+		return "", err
+	}
+
+	selectedBranches := []string{
+		masterBranch,
+	}
+
+	for _, branch := range reverseStringSlice(branches) {
+		if strings.HasPrefix(strings.ToLower(branch), "release/") {
+			selectedBranches = append(selectedBranches, branch)
+		}
+	}
+
+	if len(selectedBranches) == 1 {
+		return masterBranch, nil
+	}
+
+	prompt := promptui.Select{
+		Label: "Select branch",
+		Items: selectedBranches,
+	}
+
+	_, selected, err := prompt.Run()
+
+	if err != nil {
+		return "", err
+	}
+
+	return selected, nil
+}
+
+func reverseStringSlice(s []string) []string {
+	a := make([]string, len(s))
+	copy(a, s)
+
+	for i := len(a)/2 - 1; i >= 0; i-- {
+		opp := len(a) - 1 - i
+		a[i], a[opp] = a[opp], a[i]
+	}
+
+	return a
 }
