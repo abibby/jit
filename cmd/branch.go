@@ -31,12 +31,12 @@ var branchCmd = &cobra.Command{
 	Aliases: []string{"b"},
 	Short:   "Create a new branch from a Jira issue",
 	Long:    ``,
-	Args:    cobra.RangeArgs(1, 2),
+	Args:    cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		issueID := args[0]
 		message := ""
-		if len(args) >= 2 {
+		if len(args) >= 2 || args[1] == "-" {
 			message = args[1]
 		}
 
