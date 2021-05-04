@@ -18,21 +18,24 @@ import (
 
 func git(options ...string) error {
 	fmt.Printf("git %s\n", strings.Join(options, " "))
-	return gitRaw(os.Stdout, os.Stderr, options...)
+	return execRaw("git", os.Stdout, os.Stderr, options...)
 }
 
 func gitOutput(options ...string) (string, string, error) {
+	return execOutput("git", options...)
+}
+func execOutput(command string, options ...string) (string, string, error) {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
-	err := gitRaw(stdout, stderr, options...)
+	err := execRaw(command, stdout, stderr, options...)
 	if err != nil {
 		return stdout.String(), stderr.String(), err
 	}
 	return stdout.String(), stderr.String(), nil
 }
 
-func gitRaw(stdout, stderr io.Writer, options ...string) error {
-	cmd := exec.Command("git", options...)
+func execRaw(command string, stdout, stderr io.Writer, options ...string) error {
+	cmd := exec.Command(command, options...)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 	return cmd.Run()
