@@ -8,9 +8,9 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"sort"
 	"strings"
 
+	"bitbucket.org/zombiezen/cardcpx/natsort"
 	"github.com/andygrunwald/go-jira"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/viper"
@@ -67,7 +67,7 @@ func allBranches() ([]string, error) {
 		branches = append(branches, branch)
 	}
 
-	sort.Strings(branches)
+	natsort.Strings(branches)
 
 	return branches, nil
 }

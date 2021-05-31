@@ -1,3 +1,5 @@
+bitbucket.org/zombiezen/cardcpx v0.0.0-20150417151802-902f68ff43ef h1:Y5Zf3CYdrdGE7GOuK/MNN98GS1V8mOfeiJlISrKUcEo=
+bitbucket.org/zombiezen/cardcpx v0.0.0-20150417151802-902f68ff43ef/go.mod h1:ZJR5FpaQx7Bt2bzIV3gBaCInI1+kG949WhNYYlRr8eA=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSRU=
