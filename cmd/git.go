@@ -120,7 +120,7 @@ func defaultBranch(ctx context.Context) (string, error) {
 	}
 
 	for _, branch := range reverseStringSlice(branches) {
-		if strings.HasPrefix(strings.ToLower(branch), "release/") {
+		if strings.HasPrefix(strings.ToLower(branch), "release/") || strings.HasPrefix(strings.ToLower(branch), "feature/") {
 			selectedBranches = append(selectedBranches, branch)
 		}
 	}
