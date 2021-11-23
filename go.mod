@@ -3,9 +3,8 @@ module github.com/abibby/jit
 go 1.15
 
 require (
-	bitbucket.org/zombiezen/cardcpx v0.0.0-20150417151802-902f68ff43ef // indirect
+	bitbucket.org/zombiezen/cardcpx v0.0.0-20150417151802-902f68ff43ef
 	github.com/andygrunwald/go-jira v1.12.0
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-github/v32 v32.1.0
 	github.com/manifoldco/promptui v0.8.0
 	github.com/spf13/cobra v1.0.0

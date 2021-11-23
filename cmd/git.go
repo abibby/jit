@@ -104,6 +104,15 @@ func findBranch(issueID string) (string, error) {
 
 }
 
+func anyHasPrefix(branch string, prefixs ...string) bool {
+	for _, prefix := range prefixs {
+		if strings.HasPrefix(strings.ToLower(branch), strings.ToLower(prefix)) {
+			return true
+		}
+	}
+	return false
+}
+
 func defaultBranch(ctx context.Context) (string, error) {
 	masterBranch, err := masterBranchName(ctx)
 	if err != nil {
@@ -120,7 +129,7 @@ func defaultBranch(ctx context.Context) (string, error) {
 	}
 
 	for _, branch := range reverseStringSlice(branches) {
-		if strings.HasPrefix(strings.ToLower(branch), "release/") || strings.HasPrefix(strings.ToLower(branch), "feature/") {
+		if anyHasPrefix(branch, "release/", "feature/", "epic/") {
 			selectedBranches = append(selectedBranches, branch)
 		}
 	}
