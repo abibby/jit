@@ -94,7 +94,9 @@ func prepBranchName(str string) string {
 
 func checkoutDefaultBranch(ctx context.Context) error {
 	branch, err := defaultBranch(ctx)
-
+	if err != nil {
+		return err
+	}
 	if err = git("checkout", branch); err != nil {
 		return err
 	}

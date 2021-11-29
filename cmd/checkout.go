@@ -28,8 +28,7 @@ var checkoutCmd = &cobra.Command{
 	Args:    cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			checkoutDefaultBranch(cmd.Context())
-			return nil
+			return checkoutDefaultBranch(cmd.Context())
 		}
 		issueID := args[0]
 		b, err := findBranch(issueID)
