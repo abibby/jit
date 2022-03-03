@@ -13,7 +13,6 @@ import (
 	"bitbucket.org/zombiezen/cardcpx/natsort"
 	"github.com/andygrunwald/go-jira"
 	"github.com/manifoldco/promptui"
-	"github.com/spf13/viper"
 )
 
 func git(options ...string) error {
@@ -45,7 +44,7 @@ func branchName(issue *jira.Issue, message string) string {
 	if message == "" {
 		message = issue.Fields.Summary
 	}
-	return viper.GetString("branch_prefix") + prepBranchName(issue.Key+" "+message)
+	return configGetString("branch_prefix") + prepBranchName(issue.Key+" "+message)
 }
 
 func allBranches() ([]string, error) {

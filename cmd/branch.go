@@ -22,7 +22,6 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // branchCmd represents the branch command
@@ -72,7 +71,7 @@ var branchCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			err = SetStatus(c, issue.ID, viper.GetString("in_progress_status"))
+			err = SetStatus(c, issue.ID, configGetString("in_progress_status"))
 			if err != nil {
 				return err
 			}

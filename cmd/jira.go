@@ -4,13 +4,12 @@ import (
 	"fmt"
 
 	"github.com/andygrunwald/go-jira"
-	"github.com/spf13/viper"
 )
 
 func jiraClient() (*jira.Client, error) {
 	tp := jira.BasicAuthTransport{
-		Username: viper.GetString("jira.username"),
-		Password: viper.GetString("jira.password"),
+		Username: configGetString("jira.username"),
+		Password: configGetString("jira.password"),
 	}
 
 	return jira.NewClient(tp.Client(), "https://merotechnologies.atlassian.net")

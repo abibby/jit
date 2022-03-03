@@ -19,7 +19,6 @@ import (
 	"regexp"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // openCmd represents the open command
@@ -35,7 +34,7 @@ var openCmd = &cobra.Command{
 			return err
 		}
 
-		matches := regexp.MustCompile(regexp.QuoteMeta(viper.GetString("branch_prefix")) + `([A-Za-z]{2,}-[0-9]+)`).FindStringSubmatch(branch)
+		matches := regexp.MustCompile(regexp.QuoteMeta(configGetString("branch_prefix")) + `([A-Za-z]{2,}-[0-9]+)`).FindStringSubmatch(branch)
 
 		c, err := jiraClient()
 		if err != nil {

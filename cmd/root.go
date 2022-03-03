@@ -20,7 +20,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -77,16 +76,23 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
-
-		for _, key := range viper.AllKeys() {
-			suffix := "_command"
-			if strings.HasSuffix(key, suffix) {
-				newKey := key[:len(key)-len(suffix)]
-				b, err := exec.Command("sh", "-c", viper.GetString(key)).Output()
-				if err == nil {
-					viper.Set(newKey, string(b[:len(b)-1]))
-				}
-			}
-		}
 	}
+}
+
+func configGetString(key string) string {
+	suffix := "_command"
+	if viper.IsSet(key) {
+		return viper.GetString(key)
+
+	} else if viper.IsSet(key + suffix) {
+		newKey := key[:len(key)-len(suffix)]
+		b, err := exec.Command("sh", "-c", viper.GetString(key+suffix)).Output()
+		value := string(b[:len(b)-1])
+		if err == nil {
+			viper.Set(newKey, value)
+		}
+
+		return value
+	}
+	return ""
 }
