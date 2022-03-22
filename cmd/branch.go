@@ -33,7 +33,8 @@ var branchCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		issueID := args[0]
+		issueID := prepIssueID(args[0])
+
 		message := ""
 		if len(args) >= 2 || args[1] == "-" {
 			message = args[1]
@@ -119,4 +120,21 @@ func confirm(message string, defaultValue bool) bool {
 
 	_, selected, err := prompt.Run()
 	return err == nil && selected == "yes"
+}
+
+func prepIssueID(rawID string) string {
+	board := configGetString("board")
+	if isNumeric(rawID) && board != "" {
+		return board + "-" + rawID
+	}
+	return rawID
+}
+
+func isNumeric(s string) bool {
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }
