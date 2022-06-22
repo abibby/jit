@@ -13,6 +13,7 @@ import (
 	"bitbucket.org/zombiezen/cardcpx/natsort"
 	"github.com/andygrunwald/go-jira"
 	"github.com/manifoldco/promptui"
+	"golang.org/x/exp/constraints"
 )
 
 func git(options ...string) error {
@@ -123,14 +124,23 @@ func defaultBranch(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	selectedBranches := []string{
-		masterBranch,
-	}
+	releaseBranches := []string{}
+	otherBranches := []string{}
 
 	for _, branch := range reverseStringSlice(branches) {
-		if anyHasPrefix(branch, "release/", "feature/", "epic/") {
-			selectedBranches = append(selectedBranches, branch)
+		if anyHasPrefix(branch, "release/") {
+			releaseBranches = append(releaseBranches, branch)
 		}
+		if anyHasPrefix(branch, "feature/", "epic/") {
+			otherBranches = append(otherBranches, branch)
+		}
+	}
+
+	selectedBranches := []string{masterBranch}
+	selectedBranches = append(selectedBranches, releaseBranches[:3]...)
+	selectedBranches = append(selectedBranches, otherBranches...)
+	if len(releaseBranches) > 3 {
+		selectedBranches = append(selectedBranches, releaseBranches[3:]...)
 	}
 
 	if len(selectedBranches) == 1 {
@@ -161,4 +171,11 @@ func reverseStringSlice(s []string) []string {
 	}
 
 	return a
+}
+
+func min[T constraints.Ordered](a, b T) T {
+	if a < b {
+		return a
+	}
+	return b
 }
