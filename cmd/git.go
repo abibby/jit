@@ -137,7 +137,11 @@ func defaultBranch(ctx context.Context) (string, error) {
 	}
 
 	selectedBranches := []string{masterBranch}
-	selectedBranches = append(selectedBranches, releaseBranches[:3]...)
+	if len(releaseBranches) >= 3 {
+		selectedBranches = append(selectedBranches, releaseBranches[:3]...)
+	} else {
+		selectedBranches = append(selectedBranches, releaseBranches...)
+	}
 	selectedBranches = append(selectedBranches, otherBranches...)
 	if len(releaseBranches) > 3 {
 		selectedBranches = append(selectedBranches, releaseBranches[3:]...)
