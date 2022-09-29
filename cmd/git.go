@@ -21,6 +21,10 @@ func git(options ...string) error {
 	return execRaw("git", os.Stdout, os.Stderr, options...)
 }
 
+func gitRoot() (string, error) {
+	return "./.git", nil
+}
+
 func gitOutput(options ...string) (string, string, error) {
 	return execOutput("git", options...)
 }

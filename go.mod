@@ -5,10 +5,12 @@ go 1.18
 require (
 	bitbucket.org/zombiezen/cardcpx v0.0.0-20150417151802-902f68ff43ef
 	github.com/andygrunwald/go-jira v1.12.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/google/go-github/v32 v32.1.0
 	github.com/manifoldco/promptui v0.8.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
+	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 )
 
@@ -36,7 +38,6 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/trivago/tgo v1.0.1 // indirect
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5 // indirect
-	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d // indirect
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
 	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
 	golang.org/x/text v0.3.2 // indirect
