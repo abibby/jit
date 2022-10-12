@@ -53,7 +53,7 @@ func branchName(issue *jira.Issue, message string) string {
 }
 
 func allBranches() ([]string, error) {
-	result, _, err := gitOutput("branch", "--format", "%(refname)", "--all")
+	result, _, err := gitOutput("branch", "-r", "--format", "%(refname)", "--all")
 	if err != nil {
 		return nil, err
 	}
