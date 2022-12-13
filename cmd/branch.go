@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,13 +30,13 @@ var branchCmd = &cobra.Command{
 	Aliases: []string{"b"},
 	Short:   "Create a new branch from a Jira issue",
 	Long:    ``,
-	Args:    cobra.ExactArgs(2),
+	Args:    cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		issueID := prepIssueID(args[0])
 
 		message := ""
-		if len(args) >= 2 || args[1] == "-" {
+		if len(args) >= 2 && args[1] != "-" {
 			message = args[1]
 		}
 
