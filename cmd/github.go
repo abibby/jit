@@ -20,15 +20,12 @@ func GitHubClient(ctx context.Context) *github.Client {
 
 func masterBranchName(ctx context.Context) (string, error) {
 	gh := GitHubClient(ctx)
-
-	url, _, err := gitOutput("remote", "get-url", "origin")
+	owner, repo, err := ownerAndRepo()
 	if err != nil {
 		return "", err
 	}
-	re := regexp.MustCompile(`(?:https?:\/\/github\.com\/|git@github\.com[:/])([^\/]+)\/(.+)\.git`)
-	matches := re.FindStringSubmatch(url)
 
-	rep, _, err := gh.Repositories.Get(ctx, matches[1], matches[2])
+	rep, _, err := gh.Repositories.Get(ctx, owner, repo)
 	if err != nil {
 		return "", err
 	}
@@ -37,4 +34,17 @@ func masterBranchName(ctx context.Context) (string, error) {
 	}
 
 	return *rep.DefaultBranch, nil
+}
+
+func ownerAndRepo() (string, string, error) {
+	url, _, err := gitOutput("remote", "get-url", "origin")
+	if err != nil {
+		return "", "", err
+	}
+	re := regexp.MustCompile(`(?:https?:\/\/github\.com\/|git@github\.com[:/])([^\/]+)\/(.+)\.git`)
+	matches := re.FindStringSubmatch(url)
+	if len(matches) <= 2 {
+		return "", "", fmt.Errorf("not a github repo")
+	}
+	return matches[1], matches[2], nil
 }

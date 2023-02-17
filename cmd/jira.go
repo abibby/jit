@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/andygrunwald/go-jira"
 )
@@ -32,4 +34,17 @@ func SetStatus(c *jira.Client, issueKey, status string) error {
 	}
 
 	return fmt.Errorf("no transition to status %s", status)
+}
+
+func getIssueTag() (string, error) {
+	branch, err := currentBranch()
+	if err != nil {
+		return "", err
+	}
+
+	matches := regexp.MustCompile(`[A-Za-z]{2,}-\d+`).FindStringSubmatch(branch)
+	if matches == nil {
+		return "", nil
+	}
+	return strings.ToUpper(matches[0]), err
 }

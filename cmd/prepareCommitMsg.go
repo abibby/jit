@@ -19,8 +19,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"regexp"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -39,16 +37,13 @@ var prepareCommitMsgCmd = &cobra.Command{
 			return nil
 		}
 
-		branch, err := currentBranch()
+		issueTag, err := getIssueTag()
 		if err != nil {
 			return err
 		}
-
-		matches := regexp.MustCompile(`[A-Za-z]{2,}-\d+`).FindStringSubmatch(branch)
-		if matches == nil {
+		if issueTag == "" {
 			return nil
 		}
-		issueTag := strings.ToUpper(matches[0])
 
 		commitMsg, err := os.ReadFile(msgFile)
 		if err != nil {
