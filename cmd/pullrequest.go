@@ -23,7 +23,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/go-github/v32/github"
 	"github.com/spf13/cobra"
 )
@@ -37,6 +36,21 @@ var pullrequestCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		root := "./"
 
+		branch, err := currentBranch()
+		if err != nil {
+			return err
+		}
+
+		issueTag, err := getIssueTag()
+		if err != nil {
+			return err
+		}
+
+		title := strings.ReplaceAll(branch, "-", " ")
+		if issueTag != "" {
+			title = issueTag + ": " + title
+		}
+
 		base, err := defaultBranch(cmd.Context())
 		if err != nil {
 			return err
@@ -48,14 +62,9 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		issueTag, err := getIssueTag()
-		if err != nil {
-			return err
-		}
-
 		template := string(templateBytes)
 
-		template = fmt.Sprintf("# %s: %s\n\n%s", issueTag, "title", strings.ReplaceAll(template, "MDASH-xxxx", issueTag))
+		template = fmt.Sprintf("# %s\n\n%s", title, strings.ReplaceAll(template, "MDASH-xxxx", issueTag))
 
 		msgFile := "/tmp/jit-pull-request.md"
 		err = os.WriteFile(msgFile, []byte(template), 0644)
@@ -72,7 +81,6 @@ var pullrequestCmd = &cobra.Command{
 		}
 
 		commitMsg := string(commitMsgBytes)
-		title := ""
 
 		if strings.HasPrefix(commitMsg, "#") {
 			parts := strings.SplitN(commitMsg, "\n", 2)
@@ -82,11 +90,6 @@ var pullrequestCmd = &cobra.Command{
 
 		gh := GitHubClient(cmd.Context())
 		owner, repo, err := ownerAndRepo()
-		if err != nil {
-			return err
-		}
-
-		branch, err := currentBranch()
 		if err != nil {
 			return err
 		}
@@ -108,8 +111,8 @@ var pullrequestCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		spew.Dump(pr)
-		// exec.Command("code", )
+
+		fmt.Printf("Your PR os up at %s\n", pr.GetHTMLURL())
 		return nil
 	},
 }
