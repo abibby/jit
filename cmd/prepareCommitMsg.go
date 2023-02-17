@@ -44,8 +44,6 @@ var prepareCommitMsgCmd = &cobra.Command{
 			return err
 		}
 
-		branch = "ab-mdash-123-this-is-a-branch"
-
 		matches := regexp.MustCompile(`[A-Za-z]{2,}-\d+`).FindStringSubmatch(branch)
 		if matches == nil {
 			return nil
