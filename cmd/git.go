@@ -169,6 +169,14 @@ func defaultBranch(ctx context.Context) (string, error) {
 	return selected, nil
 }
 
+func currentBranch() (string, error) {
+	branch, _, err := gitOutput("rev-parse", "--abbrev-ref", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(branch), nil
+}
+
 func reverseStringSlice(s []string) []string {
 	a := make([]string, len(s))
 	copy(a, s)

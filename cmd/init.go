@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -42,8 +43,11 @@ var initCmd = &cobra.Command{
 		}
 		for hook, command := range m {
 			file := filepath.Join(root, "hooks", hook)
+
 			err = os.Remove(file)
-			if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+			} else if err != nil {
+				fmt.Printf("%#v", err)
 				return err
 			}
 

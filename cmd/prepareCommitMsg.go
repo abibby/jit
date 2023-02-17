@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,11 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"os"
+	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -27,16 +31,46 @@ var prepareCommitMsgCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-		// msgFile := args[0]
+	RunE: func(cmd *cobra.Command, args []string) error {
+		msgFile := args[0]
 		commitType := args[1]
 
 		if commitType == "merge" || commitType == "commit" {
-			return
+			return nil
 		}
 
-		fmt.Println(git("rev-parse", "--abbrev-ref", "HEAD"))
-		// os.Exit(1)
+		branch, err := currentBranch()
+		if err != nil {
+			return err
+		}
+
+		branch = "ab-mdash-123-this-is-a-branch"
+
+		matches := regexp.MustCompile(`[A-Za-z]{2,}-\d+`).FindStringSubmatch(branch)
+		if matches == nil {
+			return nil
+		}
+		issueTag := strings.ToUpper(matches[0])
+
+		commitMsg, err := os.ReadFile(msgFile)
+		if err != nil {
+			return err
+		}
+
+		if bytes.HasPrefix(commitMsg, []byte(issueTag+": ")) {
+			return nil
+		}
+
+		f, err := os.OpenFile(msgFile, os.O_WRONLY|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		_, err = fmt.Fprintf(f, "%s: %s", issueTag, commitMsg)
+		if err != nil {
+			return err
+		}
+		return nil
 	},
 }
 
