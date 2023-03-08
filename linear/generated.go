@@ -63,6 +63,10 @@ type IssueIssue struct {
 	Trashed bool `json:"trashed"`
 	// The time until an issue will be snoozed in Triage view.
 	SnoozedUntilAt time.Time `json:"snoozedUntilAt"`
+	// Previous identifiers of the issue if it has been moved between teams.
+	PreviousIdentifiers []string `json:"previousIdentifiers"`
+	// The workflow state that the issue is associated with.
+	State IssueIssueStateWorkflowState `json:"state"`
 	// The order of the item in the sub-issue list. Only set if the issue has a parent.
 	SubIssueSortOrder float64 `json:"subIssueSortOrder"`
 	// Label for the priority.
@@ -148,6 +152,12 @@ func (v *IssueIssue) GetTrashed() bool { return v.Trashed }
 // GetSnoozedUntilAt returns IssueIssue.SnoozedUntilAt, and is useful for accessing the field via an interface.
 func (v *IssueIssue) GetSnoozedUntilAt() time.Time { return v.SnoozedUntilAt }
 
+// GetPreviousIdentifiers returns IssueIssue.PreviousIdentifiers, and is useful for accessing the field via an interface.
+func (v *IssueIssue) GetPreviousIdentifiers() []string { return v.PreviousIdentifiers }
+
+// GetState returns IssueIssue.State, and is useful for accessing the field via an interface.
+func (v *IssueIssue) GetState() IssueIssueStateWorkflowState { return v.State }
+
 // GetSubIssueSortOrder returns IssueIssue.SubIssueSortOrder, and is useful for accessing the field via an interface.
 func (v *IssueIssue) GetSubIssueSortOrder() float64 { return v.SubIssueSortOrder }
 
@@ -168,6 +178,23 @@ func (v *IssueIssue) GetBranchName() string { return v.BranchName }
 
 // GetCustomerTicketCount returns IssueIssue.CustomerTicketCount, and is useful for accessing the field via an interface.
 func (v *IssueIssue) GetCustomerTicketCount() int { return v.CustomerTicketCount }
+
+// IssueIssueStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type IssueIssueStateWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The state's name.
+	Name string `json:"name"`
+}
+
+// GetId returns IssueIssueStateWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *IssueIssueStateWorkflowState) GetId() string { return v.Id }
+
+// GetName returns IssueIssueStateWorkflowState.Name, and is useful for accessing the field via an interface.
+func (v *IssueIssueStateWorkflowState) GetName() string { return v.Name }
 
 // IssueResponse is returned by Issue on success.
 type IssueResponse struct {
@@ -219,6 +246,11 @@ query Issue ($issueId: String!) {
 		slaBreachesAt
 		trashed
 		snoozedUntilAt
+		previousIdentifiers
+		state {
+			id
+			name
+		}
 		subIssueSortOrder
 		priorityLabel
 		descriptionData

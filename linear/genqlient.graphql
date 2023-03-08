@@ -23,6 +23,27 @@ query Issue($issueId: String!) {
     slaBreachesAt
     trashed
     snoozedUntilAt
+    # team {
+    # }
+    # cycle {
+    # }
+    # project {
+    # }
+    # projectMilestone {
+    # }
+    previousIdentifiers
+    # creator {
+    # }
+    # assignee {
+    # }
+    # snoozedBy {
+    # }
+    state {
+        id
+        name
+    }
+    # parent {
+    # }
     subIssueSortOrder
     priorityLabel
     descriptionData
@@ -30,5 +51,29 @@ query Issue($issueId: String!) {
     url
     branchName
     customerTicketCount
+    # subscribers {
+      
+    # }
+    # children {
+      
+    # }
+    # comments {
+      
+    # }
+    # history {
+      
+    # }
+    # labels {
+      
+    # }
+    # relations {
+      
+    # }
+    # inverseRelations {
+      
+    # }
+    # attachments {
+      
+    # }
   }
 }

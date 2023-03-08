@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -36,18 +37,25 @@ var branchCmd = &cobra.Command{
 
 		issueID := prepIssueID(args[0])
 
+		c := linear.New()
+
+		issue, err := linear.Issue(cmd.Context(), c, issueID)
+		if err != nil {
+			return err
+		}
+
+		if issue.Issue.State.Name != "Todo" {
+			if !confirm(fmt.Sprintf("This issue is in %s. Do you want to continue?", issue.Issue.State.Name), false) {
+				return nil
+			}
+		}
+
 		message := ""
 		if len(args) >= 2 && args[1] != "-" {
 			message = args[1]
 		}
 
 		if err := checkoutDefaultBranch(cmd.Context()); err != nil {
-			return err
-		}
-		c := linear.New()
-
-		issue, err := linear.Issue(cmd.Context(), c, issueID)
-		if err != nil {
 			return err
 		}
 
