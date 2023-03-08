@@ -1,0 +1,34 @@
+query Issue($issueId: String!) {
+  issue(id: $issueId) {
+    id
+    createdAt
+    updatedAt
+    archivedAt
+    number
+    title
+    description
+    priority
+    estimate
+    boardOrder
+    sortOrder
+    startedAt
+    completedAt
+    startedTriageAt
+    triagedAt
+    canceledAt
+    autoClosedAt
+    autoArchivedAt
+    dueDate
+    slaStartedAt
+    slaBreachesAt
+    trashed
+    snoozedUntilAt
+    subIssueSortOrder
+    priorityLabel
+    descriptionData
+    identifier
+    url
+    branchName
+    customerTicketCount
+  }
+}

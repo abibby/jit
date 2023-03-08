@@ -112,16 +112,6 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		if issueTag != "" && confirm("Do you want to move this issue to In Review on Jira?", false) {
-			jira, err := jiraClient()
-			if err != nil {
-				return err
-			}
-			err = SetStatus(jira, issueTag, configGetString("in_review_status"))
-			if err != nil {
-				return err
-			}
-		}
 		fmt.Printf("Your PR os up at %s\n", pr.GetHTMLURL())
 		return nil
 	},

@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"bitbucket.org/zombiezen/cardcpx/natsort"
-	"github.com/andygrunwald/go-jira"
+	"github.com/abibby/jit/linear"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/exp/constraints"
 )
@@ -45,11 +45,11 @@ func execRaw(command string, stdout, stderr io.Writer, options ...string) error 
 	return cmd.Run()
 }
 
-func branchName(issue *jira.Issue, message string) string {
+func branchName(issue linear.IssueIssue, message string) string {
 	if message == "" {
-		message = issue.Fields.Summary
+		message = issue.Title
 	}
-	return configGetString("branch_prefix") + prepBranchName(issue.Key+" "+message)
+	return configGetString("branch_prefix") + prepBranchName(issue.Identifier+" "+message)
 }
 
 func allBranches() ([]string, error) {

@@ -20,6 +20,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/abibby/jit/linear"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
@@ -43,17 +44,14 @@ var branchCmd = &cobra.Command{
 		if err := checkoutDefaultBranch(cmd.Context()); err != nil {
 			return err
 		}
-		c, err := jiraClient()
+		c := linear.New()
+
+		issue, err := linear.Issue(cmd.Context(), c, issueID)
 		if err != nil {
 			return err
 		}
 
-		issue, _, err := c.Issue.Get(issueID, nil)
-		if err != nil {
-			return err
-		}
-
-		branch := branchName(issue, message)
+		branch := branchName(issue.Issue, message)
 
 		if err = git("branch", branch); err != nil {
 			return err
@@ -62,21 +60,21 @@ var branchCmd = &cobra.Command{
 			return err
 		}
 
-		if confirm("Do you want to assign yourself to this issue on Jira?", false) {
-			u, _, err := c.User.GetSelf()
-			if err != nil {
-				return err
-			}
+		// if confirm("Do you want to assign yourself to this issue on Jira?", false) {
+		// 	u, _, err := c.User.GetSelf()
+		// 	if err != nil {
+		// 		return err
+		// 	}
 
-			_, err = c.Issue.UpdateAssignee(issue.ID, u)
-			if err != nil {
-				return err
-			}
-			err = SetStatus(c, issue.ID, configGetString("in_progress_status"))
-			if err != nil {
-				return err
-			}
-		}
+		// 	_, err = c.Issue.UpdateAssignee(issue.ID, u)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	err = SetStatus(c, issue.ID, configGetString("in_progress_status"))
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 		return nil
 	},
 }

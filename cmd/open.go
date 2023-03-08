@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package cmd
 import (
 	"regexp"
 
+	"github.com/abibby/jit/linear"
 	"github.com/spf13/cobra"
 )
 
@@ -36,19 +37,14 @@ var openCmd = &cobra.Command{
 
 		matches := regexp.MustCompile(regexp.QuoteMeta(configGetString("branch_prefix")) + `([A-Za-z]{2,}-[0-9]+)`).FindStringSubmatch(branch)
 
-		c, err := jiraClient()
+		c := linear.New()
+
+		issue, err := linear.Issue(cmd.Context(), c, matches[1])
 		if err != nil {
 			return err
 		}
 
-		issue, _, err := c.Issue.Get(matches[1], nil)
-		if err != nil {
-			return err
-		}
-
-		baseUrl := c.GetBaseURL()
-
-		execOutput("xdg-open", baseUrl.String()+"browse/"+issue.Key)
+		execOutput("xdg-open", issue.Issue.Url)
 		return nil
 	},
 }
