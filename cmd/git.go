@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"bitbucket.org/zombiezen/cardcpx/natsort"
-	"github.com/abibby/jit/linear"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/exp/constraints"
 )
@@ -45,11 +44,14 @@ func execRaw(command string, stdout, stderr io.Writer, options ...string) error 
 	return cmd.Run()
 }
 
-func branchName(issue linear.IssueIssue, message string) string {
-	if message == "" {
-		message = issue.Title
-	}
-	return configGetString("branch_prefix") + prepBranchName(issue.Identifier+" "+message)
+func branchName(id, message string) string {
+	return configGetString("branch_prefix") + prepBranchName(id+" "+message)
+}
+func prepBranchName(str string) string {
+	str = strings.ReplaceAll(str, " ", "-")
+	str = regexp.MustCompile("[^A-Za-z0-9\\-]").ReplaceAllString(str, "")
+	str = strings.ToLower(str)
+	return str
 }
 
 func allBranches() ([]string, error) {
@@ -128,10 +130,14 @@ func defaultBranch(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	devBranches := []string{}
 	releaseBranches := []string{}
 	otherBranches := []string{}
 
 	for _, branch := range reverseStringSlice(branches) {
+		if branch == "develop" {
+			devBranches = append(devBranches, branch)
+		}
 		if anyHasPrefix(branch, "release/") {
 			releaseBranches = append(releaseBranches, branch)
 		}
@@ -141,6 +147,7 @@ func defaultBranch(ctx context.Context) (string, error) {
 	}
 
 	selectedBranches := []string{masterBranch}
+	selectedBranches = append(selectedBranches, devBranches...)
 	if len(releaseBranches) >= 3 {
 		selectedBranches = append(selectedBranches, releaseBranches[:3]...)
 	} else {

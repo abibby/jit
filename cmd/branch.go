@@ -17,11 +17,8 @@ package cmd
 
 import (
 	"context"
-	"fmt"
-	"regexp"
 	"strings"
 
-	"github.com/abibby/jit/linear"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
@@ -35,20 +32,20 @@ var branchCmd = &cobra.Command{
 	Args:    cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		issueID := prepIssueID(args[0])
+		// issueID := prepIssueID(args[0])
 
-		c := linear.New()
+		// c := linear.New()
 
-		issue, err := linear.Issue(cmd.Context(), c, issueID)
-		if err != nil {
-			return err
-		}
+		// issue, err := linear.Issue(cmd.Context(), c, issueID)
+		// if err != nil {
+		// 	return err
+		// }
 
-		if issue.Issue.State.Name != "Todo" {
-			if !confirm(fmt.Sprintf("This issue is in %s. Do you want to continue?", issue.Issue.State.Name), false) {
-				return nil
-			}
-		}
+		// if issue.Issue.State.Name != "Todo" {
+		// 	if !confirm(fmt.Sprintf("This issue is in %s. Do you want to continue?", issue.Issue.State.Name), false) {
+		// 		return nil
+		// 	}
+		// }
 
 		message := ""
 		if len(args) >= 2 && args[1] != "-" {
@@ -59,12 +56,14 @@ var branchCmd = &cobra.Command{
 			return err
 		}
 
-		branch := branchName(issue.Issue, message)
+		branch := prepBranchName("fix/" + message)
 
-		if err = git("branch", branch); err != nil {
+		err := git("branch", branch)
+		if err != nil {
 			return err
 		}
-		if err = git("checkout", branch); err != nil {
+		err = git("checkout", branch)
+		if err != nil {
 			return err
 		}
 
@@ -88,14 +87,7 @@ var branchCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(branchCmd)
-}
-
-func prepBranchName(str string) string {
-	str = strings.ReplaceAll(str, " ", "-")
-	str = regexp.MustCompile("[^A-Za-z0-9\\-]").ReplaceAllString(str, "")
-	str = strings.ToLower(str)
-	return str
+	// rootCmd.AddCommand(branchCmd)
 }
 
 func checkoutDefaultBranch(ctx context.Context) error {
@@ -143,4 +135,23 @@ func isNumeric(s string) bool {
 		}
 	}
 	return true
+}
+
+func creteBranch(ctx context.Context, branchType string, args []string) error {
+
+	if err := checkoutDefaultBranch(ctx); err != nil {
+		return err
+	}
+
+	branch := branchType + "/" + prepBranchName(strings.Join(args, " "))
+
+	err := git("branch", branch)
+	if err != nil {
+		return err
+	}
+	err = git("checkout", branch)
+	if err != nil {
+		return err
+	}
+	return nil
 }

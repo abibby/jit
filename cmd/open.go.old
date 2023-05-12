@@ -29,7 +29,7 @@ var openCmd = &cobra.Command{
 	Short:   "Open the jira issue in the browser",
 	Long:    ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		branch, _, err := execOutput("git", "rev-parse", "--abbrev-ref", "HEAD")
+		branch, _, err := gitOutput("rev-parse", "--abbrev-ref", "HEAD")
 
 		if err != nil {
 			return err
