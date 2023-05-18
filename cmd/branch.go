@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/manifoldco/promptui"
 	"github.com/range-labs/go-asana/asana"
 	"github.com/spf13/cobra"
@@ -159,7 +158,7 @@ func creteBranch(ctx context.Context, branchType string, args []string) error {
 		}
 
 		taskNames := make([]string, 0, len(tasks))
-		spew.Dump(tasks)
+
 		for _, t := range tasks {
 			if t.Completed {
 				continue
