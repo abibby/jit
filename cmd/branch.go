@@ -17,9 +17,12 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/manifoldco/promptui"
+	"github.com/range-labs/go-asana/asana"
 	"github.com/spf13/cobra"
 )
 
@@ -138,7 +141,43 @@ func isNumeric(s string) bool {
 }
 
 func creteBranch(ctx context.Context, branchType string, args []string) error {
+	if len(args) == 0 {
+		client := asanaClient()
+		me, err := client.GetAuthenticatedUser(ctx, nil)
+		if err != nil {
+			return err
+		}
+		tasks, err := client.ListTasks(ctx, &asana.Filter{
+			WorkspaceGID: me.Workspaces[0].GID,
+			AssigneeGID:  me.GID,
+		})
+		if err != nil {
+			if asanaErr, ok := err.(*asana.RequestError); ok {
+				fmt.Println(asanaErr.Body)
+			}
+			return err
+		}
 
+		taskNames := make([]string, 0, len(tasks))
+		spew.Dump(tasks)
+		for _, t := range tasks {
+			if t.Completed {
+				continue
+			}
+			taskNames = append(taskNames, t.Name)
+		}
+
+		prompt := promptui.Select{
+			Label: "Select branch",
+			Items: taskNames,
+		}
+
+		_, selected, err := prompt.Run()
+		if err != nil {
+			return err
+		}
+		args = append(args, selected)
+	}
 	if err := checkoutDefaultBranch(ctx); err != nil {
 		return err
 	}

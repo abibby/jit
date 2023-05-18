@@ -11,7 +11,7 @@ import (
 var featureCmd = &cobra.Command{
 	Use:     "feature",
 	Aliases: []string{"fe"},
-	Short:   "Create a fix branch",
+	Short:   "Create a feature branch",
 	Long:    ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return creteBranch(cmd.Context(), "fix", args)
