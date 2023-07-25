@@ -27,10 +27,9 @@ import (
 
 // prepareCommitMsgCmd represents the prepareCommitMsg command
 var prepareCommitMsgCmd = &cobra.Command{
-	Use:   "prepareCommitMsg",
-	Short: "",
-	Long:  ``,
-	Args:  cobra.ExactArgs(2),
+	Use:    "prepareCommitMsg",
+	Hidden: true,
+	Args:   cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		msgFile := args[0]
 		commitType := args[1]

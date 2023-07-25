@@ -30,6 +30,19 @@ var initCmd = &cobra.Command{
 	Short: "Add hooks to your repo",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		//  applypatch-msg
+		//  commit-msg
+		//  fsmonitor-watchman
+		//  post-update
+		//  pre-applypatch
+		//  pre-commit
+		//  pre-merge-commit
+		//  pre-push
+		//  pre-rebase
+		//  pre-receive
+		//  prepare-commit-msg
+		//  push-to-checkout
+		//  update
 		m := map[string]string{
 			"prepare-commit-msg": prepareCommitMsgCmd.Use,
 		}

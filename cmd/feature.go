@@ -14,7 +14,7 @@ var featureCmd = &cobra.Command{
 	Short:   "Create a feature branch",
 	Long:    ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return creteBranch(cmd.Context(), "fix", args)
+		return creteBranch(cmd.Context(), "feature", args)
 	},
 }
 
