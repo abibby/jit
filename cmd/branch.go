@@ -34,20 +34,7 @@ var branchCmd = &cobra.Command{
 	Args:    cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		// issueID := prepIssueID(args[0])
-
-		// c := linear.New()
-
-		// issue, err := linear.Issue(cmd.Context(), c, issueID)
-		// if err != nil {
-		// 	return err
-		// }
-
-		// if issue.Issue.State.Name != "Todo" {
-		// 	if !confirm(fmt.Sprintf("This issue is in %s. Do you want to continue?", issue.Issue.State.Name), false) {
-		// 		return nil
-		// 	}
-		// }
+		issueID := prepIssueID(args[0])
 
 		message := ""
 		if len(args) >= 2 && args[1] != "-" {
@@ -58,9 +45,19 @@ var branchCmd = &cobra.Command{
 			return err
 		}
 
-		branch := prepBranchName("fix/" + message)
+		c, err := jiraClient()
+		if err != nil {
+			return err
+		}
 
-		err := git("branch", branch)
+		issue, _, err := c.Issue.Get(issueID, nil)
+		if err != nil {
+			return err
+		}
+
+		branch := branchName(issue, message)
+
+		err = git("branch", branch)
 		if err != nil {
 			return err
 		}
@@ -69,16 +66,18 @@ var branchCmd = &cobra.Command{
 			return err
 		}
 
-		// if confirm("Do you want to assign yourself to this issue on Jira?", false) {
+		// if confirm("Do you want to move this issue to in progress on Jira?", false) {
 		// 	u, _, err := c.User.GetSelf()
 		// 	if err != nil {
 		// 		return err
 		// 	}
-
-		// 	_, err = c.Issue.UpdateAssignee(issue.ID, u)
-		// 	if err != nil {
-		// 		return err
+		// 	if issue.Fields.Assignee.AccountID != u.AccountID {
+		// 		_, err = c.Issue.UpdateAssignee(issue.ID, u)
+		// 		if err != nil {
+		// 			return err
+		// 		}
 		// 	}
+
 		// 	err = SetStatus(c, issue.ID, configGetString("in_progress_status"))
 		// 	if err != nil {
 		// 		return err
@@ -89,7 +88,7 @@ var branchCmd = &cobra.Command{
 }
 
 func init() {
-	// rootCmd.AddCommand(branchCmd)
+	rootCmd.AddCommand(branchCmd)
 }
 
 func checkoutDefaultBranch(ctx context.Context) error {

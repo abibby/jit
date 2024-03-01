@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"bitbucket.org/zombiezen/cardcpx/natsort"
+	"github.com/andygrunwald/go-jira"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/exp/constraints"
 )
@@ -44,12 +45,15 @@ func execRaw(command string, stdout, stderr io.Writer, options ...string) error 
 	return cmd.Run()
 }
 
-func branchName(id, message string) string {
-	return configGetString("branch_prefix") + prepBranchName(id+" "+message)
+func branchName(issue *jira.Issue, message string) string {
+	if message == "" {
+		message = issue.Fields.Summary
+	}
+	return configGetString("branch_prefix") + prepBranchName(issue.Key+" "+message)
 }
 func prepBranchName(str string) string {
 	str = strings.ReplaceAll(str, " ", "-")
-	str = regexp.MustCompile("[^A-Za-z0-9\\-]").ReplaceAllString(str, "")
+	str = regexp.MustCompile(`[^A-Za-z0-9\-]`).ReplaceAllString(str, "")
 	str = strings.ToLower(str)
 	return str
 }

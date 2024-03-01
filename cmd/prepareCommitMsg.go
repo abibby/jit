@@ -19,8 +19,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"regexp"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -70,19 +68,6 @@ var prepareCommitMsgCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(prepareCommitMsgCmd)
-}
-
-func getIssueTag() (string, error) {
-	branch, err := currentBranch()
-	if err != nil {
-		return "", err
-	}
-
-	matches := regexp.MustCompile(`[A-Za-z]{2,}-\d+`).FindStringSubmatch(branch)
-	if matches == nil {
-		return "", nil
-	}
-	return strings.ToUpper(matches[0]), err
 }
 
 // #!/bin/sh
