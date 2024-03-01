@@ -18,12 +18,10 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/abibby/jit/cfg"
 	"github.com/abibby/jit/git"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/manifoldco/promptui"
 	"github.com/range-labs/go-asana/asana"
 	"github.com/spf13/cobra"
@@ -56,9 +54,6 @@ var branchCmd = &cobra.Command{
 		}
 
 		branch := git.BranchName(issue, message)
-
-		spew.Dump(branch)
-		os.Exit(1)
 
 		if err := checkoutDefaultBranch(cmd.Context()); err != nil {
 			return err
