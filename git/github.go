@@ -40,3 +40,35 @@ func (gh Github) MainBranchName(ctx context.Context) (string, error) {
 
 	return *rep.DefaultBranch, nil
 }
+
+func (gh Github) CreatePR(ctx context.Context, opt *PullRequestOptions) (*PullRequest, error) {
+	u, err := UrlParts()
+	if err != nil {
+		return nil, err
+	}
+	pr, _, err := gh.client.PullRequests.Create(
+		ctx,
+		u.Owner,
+		u.Repo,
+		&github.NewPullRequest{
+			Title: ptr(opt.Title),
+			Body:  ptr(opt.Description),
+			Head:  ptr(opt.SourceBranch),
+			Base:  ptr(opt.BaseBranch),
+			// Issue
+			// MaintainerCanModify
+			Draft: ptr(true),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PullRequest{
+		URL: pr.GetHTMLURL(),
+	}, nil
+}
+
+func ptr[T any](v T) *T {
+	return &v
+}

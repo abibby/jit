@@ -7,6 +7,7 @@ import (
 
 type Provider interface {
 	MainBranchName(context.Context) (string, error)
+	CreatePR(context.Context, *PullRequestOptions) (*PullRequest, error)
 }
 
 func GetProvider(ctx context.Context) (Provider, error) {

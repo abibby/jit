@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/abibby/jit/git"
-	"github.com/google/go-github/v32/github"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +36,7 @@ var pullrequestCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		root := "./"
 
-		branch, err := currentBranch()
+		branch, err := git.CurrentBranch()
 		if err != nil {
 			return err
 		}
@@ -52,13 +51,14 @@ var pullrequestCmd = &cobra.Command{
 			title = issueTag + ": " + title
 		}
 
-		base, err := defaultBranch(cmd.Context())
+		base, err := git.DefaultBranch(cmd.Context())
 		if err != nil {
 			return err
 		}
 
 		templateBytes, err := os.ReadFile(path.Join(root, ".github/pull_request_template.md"))
 		if errors.Is(err, os.ErrNotExist) {
+			// empty
 		} else if err != nil {
 			return err
 		}
@@ -89,37 +89,19 @@ var pullrequestCmd = &cobra.Command{
 			commitMsg = strings.TrimSpace(parts[1])
 		}
 
-		gh := GitHubClient(cmd.Context())
-		owner, repo, err := git.UrlParts()
+		pr, err := git.CreatePR(cmd.Context(), &git.PullRequestOptions{
+			Title:        title,
+			Description:  commitMsg,
+			SourceBranch: branch,
+			BaseBranch:   base,
+		})
 		if err != nil {
 			return err
 		}
 
-		pr, _, err := gh.PullRequests.Create(
-			cmd.Context(),
-			owner,
-			repo,
-			&github.NewPullRequest{
-				Title: ptr(title),
-				Body:  ptr(commitMsg),
-				Head:  ptr(branch),
-				Base:  ptr(base),
-				// Issue
-				// MaintainerCanModify
-				Draft: ptr(true),
-			},
-		)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("Your PR os up at %s\n", pr.GetHTMLURL())
+		fmt.Printf("Your PR os up at %s\n", pr.URL)
 		return nil
 	},
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }
 
 func init() {

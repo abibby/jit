@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/abibby/jit/cfg"
+	"github.com/abibby/jit/lodash"
 	"github.com/ktrysmt/go-bitbucket"
 )
 
@@ -38,4 +39,34 @@ func (bb Bitbucket) MainBranchName(ctx context.Context) (string, error) {
 	}
 
 	return repo.Mainbranch.Name, nil
+}
+
+func (bb Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (*PullRequest, error) {
+	u, err := UrlParts()
+	if err != nil {
+		return nil, err
+	}
+
+	pr, err := bb.client.Repositories.PullRequests.Create(&bitbucket.PullRequestsOptions{
+		Message:  opt.Description,
+		Owner:    u.Owner,
+		RepoSlug: u.Repo,
+
+		Title:             opt.Title,
+		Description:       opt.Description,
+		SourceBranch:      opt.SourceBranch,
+		DestinationBranch: opt.BaseBranch,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	url, err := lodash.GetString(pr, "links.html")
+	if err != nil {
+		return nil, fmt.Errorf("could not extract the url: %w", err)
+	}
+
+	return &PullRequest{
+		URL: url,
+	}, nil
 }
