@@ -35,7 +35,7 @@ var openCmd = &cobra.Command{
 			return err
 		}
 
-		matches := regexp.MustCompile(regexp.QuoteMeta(configGetString("branch_prefix")) + `([A-Za-z]{2,}-[0-9]+)`).FindStringSubmatch(branch)
+		matches := regexp.MustCompile(regexp.QuoteMeta(cfg.GetString("branch_prefix")) + `([A-Za-z]{2,}-[0-9]+)`).FindStringSubmatch(branch)
 
 		c := linear.New()
 

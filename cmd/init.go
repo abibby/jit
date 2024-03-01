@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/abibby/jit/git"
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +47,7 @@ var initCmd = &cobra.Command{
 		m := map[string]string{
 			"prepare-commit-msg": prepareCommitMsgCmd.Use,
 		}
-		root, err := gitRoot()
+		root, err := git.Root()
 		if err != nil {
 			return err
 		}

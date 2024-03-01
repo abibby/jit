@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/abibby/jit/cfg"
 	"github.com/range-labs/go-asana/asana"
 )
 
@@ -23,7 +24,7 @@ type Workspace struct {
 
 func asanaClient() *asana.Client {
 	return asana.NewClient(asana.DoerFunc(func(req *http.Request) (resp *http.Response, err error) {
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", configGetString("asana.access_token")))
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", cfg.GetString("asana.access_token")))
 		return http.DefaultClient.Do(req)
 	}))
 }

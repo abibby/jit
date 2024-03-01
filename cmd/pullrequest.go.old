@@ -23,6 +23,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/abibby/jit/git"
 	"github.com/google/go-github/v32/github"
 	"github.com/spf13/cobra"
 )
@@ -89,7 +90,7 @@ var pullrequestCmd = &cobra.Command{
 		}
 
 		gh := GitHubClient(cmd.Context())
-		owner, repo, err := ownerAndRepo()
+		owner, repo, err := git.UrlParts()
 		if err != nil {
 			return err
 		}

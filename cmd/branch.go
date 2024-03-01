@@ -18,8 +18,12 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/abibby/jit/cfg"
+	"github.com/abibby/jit/git"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/manifoldco/promptui"
 	"github.com/range-labs/go-asana/asana"
 	"github.com/spf13/cobra"
@@ -31,7 +35,7 @@ var branchCmd = &cobra.Command{
 	Aliases: []string{"b"},
 	Short:   "Create a new branch from a Jira issue",
 	Long:    ``,
-	Args:    cobra.RangeArgs(1, 2),
+	Args:    cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		issueID := prepIssueID(args[0])
@@ -39,10 +43,6 @@ var branchCmd = &cobra.Command{
 		message := ""
 		if len(args) >= 2 && args[1] != "-" {
 			message = args[1]
-		}
-
-		if err := checkoutDefaultBranch(cmd.Context()); err != nil {
-			return err
 		}
 
 		c, err := jiraClient()
@@ -55,13 +55,20 @@ var branchCmd = &cobra.Command{
 			return err
 		}
 
-		branch := branchName(issue, message)
+		branch := git.BranchName(issue, message)
 
-		err = git("branch", branch)
+		spew.Dump(branch)
+		os.Exit(1)
+
+		if err := checkoutDefaultBranch(cmd.Context()); err != nil {
+			return err
+		}
+
+		err = git.Run("branch", branch)
 		if err != nil {
 			return err
 		}
-		err = git("checkout", branch)
+		err = git.Run("checkout", branch)
 		if err != nil {
 			return err
 		}
@@ -78,7 +85,7 @@ var branchCmd = &cobra.Command{
 		// 		}
 		// 	}
 
-		// 	err = SetStatus(c, issue.ID, configGetString("in_progress_status"))
+		// 	err = SetStatus(c, issue.ID, cfg.GetString("in_progress_status"))
 		// 	if err != nil {
 		// 		return err
 		// 	}
@@ -92,15 +99,15 @@ func init() {
 }
 
 func checkoutDefaultBranch(ctx context.Context) error {
-	branch, err := defaultBranch(ctx)
+	branch, err := git.DefaultBranch(ctx)
 	if err != nil {
 		return err
 	}
-	if err = git("checkout", branch); err != nil {
+	if err = git.Run("checkout", branch); err != nil {
 		return err
 	}
 
-	if err = git("pull"); err != nil {
+	if err = git.Run("pull"); err != nil {
 		return err
 	}
 	return nil
@@ -122,7 +129,7 @@ func confirm(message string, defaultValue bool) bool {
 }
 
 func prepIssueID(rawID string) string {
-	board := configGetString("board")
+	board := cfg.GetString("board")
 	if isNumeric(rawID) && board != "" {
 		return board + "-" + rawID
 	}
@@ -180,13 +187,13 @@ func creteBranch(ctx context.Context, branchType string, args []string) error {
 		return err
 	}
 
-	branch := branchType + "/" + prepBranchName(strings.Join(args, " "))
+	branch := branchType + "/" + git.PrepBranchName(strings.Join(args, " "))
 
-	err := git("branch", branch)
+	err := git.Run("branch", branch)
 	if err != nil {
 		return err
 	}
-	err = git("checkout", branch)
+	err = git.Run("checkout", branch)
 	if err != nil {
 		return err
 	}

@@ -5,16 +5,18 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/abibby/jit/cfg"
+	"github.com/abibby/jit/git"
 	"github.com/andygrunwald/go-jira"
 )
 
 func jiraClient() (*jira.Client, error) {
 	tp := jira.BasicAuthTransport{
-		Username: configGetString("jira.username"),
-		Password: configGetString("jira.password"),
+		Username: cfg.GetString("jira.username"),
+		Password: cfg.GetString("jira.password"),
 	}
 
-	return jira.NewClient(tp.Client(), "https://merotechnologies.atlassian.net")
+	return jira.NewClient(tp.Client(), cfg.GetString("jira.base_url"))
 }
 
 func SetStatus(c *jira.Client, issueKey, status string) error {
@@ -37,7 +39,7 @@ func SetStatus(c *jira.Client, issueKey, status string) error {
 }
 
 func getIssueTag() (string, error) {
-	branch, err := currentBranch()
+	branch, err := git.CurrentBranch()
 	if err != nil {
 		return "", err
 	}

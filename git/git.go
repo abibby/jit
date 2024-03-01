@@ -1,4 +1,4 @@
-package cmd
+package git
 
 import (
 	"bytes"
@@ -11,21 +11,22 @@ import (
 	"strings"
 
 	"bitbucket.org/zombiezen/cardcpx/natsort"
+	"github.com/abibby/jit/cfg"
 	"github.com/andygrunwald/go-jira"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/exp/constraints"
 )
 
-func git(options ...string) error {
+func Run(options ...string) error {
 	fmt.Printf("git %s\n", strings.Join(options, " "))
 	return execRaw("git", os.Stdout, os.Stderr, options...)
 }
 
-func gitRoot() (string, error) {
+func Root() (string, error) {
 	return "./.git", nil
 }
 
-func gitOutput(options ...string) (string, string, error) {
+func Output(options ...string) (string, string, error) {
 	return execOutput("git", options...)
 }
 func execOutput(command string, options ...string) (string, string, error) {
@@ -45,27 +46,42 @@ func execRaw(command string, stdout, stderr io.Writer, options ...string) error 
 	return cmd.Run()
 }
 
-func branchName(issue *jira.Issue, message string) string {
+func BranchName(issue *jira.Issue, message string) string {
 	if message == "" {
 		message = issue.Fields.Summary
 	}
-	return configGetString("branch_prefix") + prepBranchName(issue.Key+" "+message)
+	return cfg.GetString("branch_prefix") + PrepBranchName(issue.Key+" "+message)
 }
-func prepBranchName(str string) string {
+func PrepBranchName(str string) string {
 	str = strings.ReplaceAll(str, " ", "-")
 	str = regexp.MustCompile(`[^A-Za-z0-9\-]`).ReplaceAllString(str, "")
 	str = strings.ToLower(str)
+	str = removeRepeats(str)
 	return str
 }
 
+func removeRepeats(s string) string {
+	result := make([]rune, 0, len(s))
+	last := rune(0)
+	for _, c := range s {
+		if c == last {
+			continue
+		}
+		result = append(result, c)
+		last = c
+	}
+	return string(result)
+}
+
 func allBranches() ([]string, error) {
-	result, _, err := gitOutput("branch", "-r", "--format", "%(refname)", "--all")
+	result, _, err := Output("branch", "-r", "--format", "%(refname)", "--all")
 	if err != nil {
 		return nil, err
 	}
 
 	brancheMap := map[string]struct{}{}
-	re := regexp.MustCompile(`^(?:refs\/heads\/|refs\/remotes\/[^\/]+\/)(.*)$`)
+	a := `^(?:refs\/heads\/|refs\/remotes\/[^\/]+\/)(.*)$`
+	re := regexp.MustCompile(a)
 	for _, branch := range strings.Split(result, "\n") {
 		matches := re.FindStringSubmatch(branch)
 		if len(matches) > 1 {
@@ -82,7 +98,7 @@ func allBranches() ([]string, error) {
 	return branches, nil
 }
 
-func findBranch(issueID string) (string, error) {
+func FindBranch(issueID string) (string, error) {
 	branches, err := allBranches()
 	if err != nil {
 		return "", err
@@ -123,8 +139,13 @@ func anyHasPrefix(branch string, prefixs ...string) bool {
 	return false
 }
 
-func defaultBranch(ctx context.Context) (string, error) {
-	masterBranch, err := masterBranchName(ctx)
+func DefaultBranch(ctx context.Context) (string, error) {
+	p, err := GetProvider(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	masterBranch, err := p.MainBranchName(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -180,8 +201,8 @@ func defaultBranch(ctx context.Context) (string, error) {
 	return selected, nil
 }
 
-func currentBranch() (string, error) {
-	branch, _, err := gitOutput("rev-parse", "--abbrev-ref", "HEAD")
+func CurrentBranch() (string, error) {
+	branch, _, err := Output("rev-parse", "--abbrev-ref", "HEAD")
 	if err != nil {
 		return "", err
 	}
@@ -205,4 +226,42 @@ func min[T constraints.Ordered](a, b T) T {
 		return a
 	}
 	return b
+}
+
+type GitUrl struct {
+	Host  string
+	Owner string
+	Repo  string
+	SSH   bool
+}
+
+func UrlParts() (*GitUrl, error) {
+	url, _, err := Output("remote", "get-url", "origin")
+	if err != nil {
+		return nil, err
+	}
+	re := regexp.MustCompile(`(?:https?:\/\/([^/]+)\/|git@([^:]+):)([^\/]+)\/(.+)\.git`)
+	matches := re.FindStringSubmatch(url)
+	if len(matches) <= 3 {
+		return nil, fmt.Errorf("invalid url")
+	}
+	host := matches[1]
+	ssh := false
+	if host == "" {
+		host = matches[2]
+		ssh = true
+	}
+	return &GitUrl{
+		Host:  host,
+		Owner: matches[3],
+		Repo:  matches[4],
+		SSH:   ssh,
+	}, nil
+}
+
+func (u *GitUrl) String() string {
+	if u.SSH {
+		return fmt.Sprintf("git@%s:%s/%s.git", u.Host, u.Owner, u.Repo)
+	}
+	return fmt.Sprintf("https://%s/%s/%s.git", u.Host, u.Owner, u.Repo)
 }
