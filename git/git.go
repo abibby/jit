@@ -145,7 +145,7 @@ func DefaultBranch(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	masterBranch, err := p.MainBranchName(ctx)
+	mainBranch, err := p.MainBranchName(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -160,6 +160,9 @@ func DefaultBranch(ctx context.Context) (string, error) {
 	otherBranches := []string{}
 
 	for _, branch := range reverseStringSlice(branches) {
+		if branch == mainBranch {
+			continue
+		}
 		if branch == "develop" {
 			devBranches = append(devBranches, branch)
 		}
@@ -171,7 +174,7 @@ func DefaultBranch(ctx context.Context) (string, error) {
 		}
 	}
 
-	selectedBranches := []string{masterBranch}
+	selectedBranches := []string{mainBranch}
 	selectedBranches = append(selectedBranches, devBranches...)
 	if len(releaseBranches) >= 3 {
 		selectedBranches = append(selectedBranches, releaseBranches[:3]...)
@@ -184,7 +187,7 @@ func DefaultBranch(ctx context.Context) (string, error) {
 	}
 
 	if len(selectedBranches) == 1 {
-		return masterBranch, nil
+		return mainBranch, nil
 	}
 
 	prompt := promptui.Select{
