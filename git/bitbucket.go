@@ -58,10 +58,13 @@ func (bb Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (*Pul
 		DestinationBranch: opt.BaseBranch,
 	})
 	if err != nil {
-		return nil, err
+		if err, ok := err.(*bitbucket.UnexpectedResponseStatusError); ok {
+			return nil, fmt.Errorf("could not create pull request: %w", err.ErrorWithBody())
+		}
+		return nil, fmt.Errorf("could not create pull request: %w", err)
 	}
 
-	url, err := lodash.GetString(pr, "links.html")
+	url, err := lodash.GetString(pr, "links.html.href")
 	if err != nil {
 		return nil, fmt.Errorf("could not extract the url: %w", err)
 	}

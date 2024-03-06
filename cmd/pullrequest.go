@@ -46,6 +46,11 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
+		err = git.Run("push")
+		if err != nil {
+			return err
+		}
+
 		title := strings.ReplaceAll(branch, "-", " ")
 		if issueTag != "" {
 			title = issueTag + ": " + title
