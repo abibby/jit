@@ -64,7 +64,7 @@ func removeRepeats(s string) string {
 	result := make([]rune, 0, len(s))
 	last := rune(0)
 	for _, c := range s {
-		if c == last {
+		if c == last && (c == ' ' || c == '-') {
 			continue
 		}
 		result = append(result, c)
