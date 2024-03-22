@@ -73,3 +73,22 @@ func (bb Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (*Pul
 		URL: url,
 	}, nil
 }
+
+func (bb Bitbucket) DiffURL(ctx context.Context) (string, error) {
+	parts, err := UrlParts()
+	if err != nil {
+		return "", err
+	}
+
+	branch, err := CurrentBranch()
+	if err != nil {
+		return "", err
+	}
+
+	main, err := bb.MainBranchName(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("https://bitbucket.org/%s/%s/branch/%s?dest=%s", parts.Owner, parts.Repo, branch, main), nil
+}

@@ -72,3 +72,7 @@ func (gh Github) CreatePR(ctx context.Context, opt *PullRequestOptions) (*PullRe
 func ptr[T any](v T) *T {
 	return &v
 }
+
+func (gh Github) DiffURL(ctx context.Context) (string, error) {
+	return "", nil
+}

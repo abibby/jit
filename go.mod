@@ -5,11 +5,11 @@ go 1.18
 require (
 	bitbucket.org/zombiezen/cardcpx v0.0.0-20150417151802-902f68ff43ef
 	github.com/andygrunwald/go-jira v1.16.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/google/go-github/v32 v32.1.0
 	github.com/ktrysmt/go-bitbucket v0.9.76
 	github.com/manifoldco/promptui v0.8.0
 	github.com/range-labs/go-asana v0.0.0-20220425181030-1627f841c4a7
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.4
@@ -19,6 +19,7 @@ require (
 
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
