@@ -40,7 +40,7 @@ var branchCmd = &cobra.Command{
 
 		message := ""
 		if len(args) >= 2 && args[1] != "-" {
-			message = args[1]
+			message = strings.Join(args[1:], " ")
 		}
 
 		c, err := jiraClient()
@@ -54,6 +54,26 @@ var branchCmd = &cobra.Command{
 		}
 
 		branch := git.BranchName(issue, message)
+
+		max := cfg.GetIntDefault("branch.max_name", 47)
+		for len(branch) > max {
+			p := &promptui.Prompt{
+				Label:     fmt.Sprintf("Branch name too long (max %d), %s (%d)", max, branch, len(branch)),
+				Default:   message,
+				AllowEdit: true,
+			}
+			v, err := p.Run()
+			if err != nil {
+				return err
+			}
+
+			oldBranch := branch
+			message = v
+			branch = git.BranchName(issue, message)
+			if branch == oldBranch {
+				break
+			}
+		}
 
 		if err := checkoutDefaultBranch(cmd.Context()); err != nil {
 			return err

@@ -1,7 +1,9 @@
 package cfg
 
 import (
+	"log"
 	"os/exec"
+	"strconv"
 
 	"github.com/spf13/viper"
 )
@@ -22,4 +24,20 @@ func GetString(key string) string {
 		return value
 	}
 	return ""
+}
+
+func GetInt(key string) int {
+	s := GetString(key)
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.Print(err)
+	}
+	return i
+}
+func GetIntDefault(key string, defaultValue int) int {
+	i := GetInt(key)
+	if i == 0 {
+		return defaultValue
+	}
+	return i
 }
