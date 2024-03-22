@@ -16,9 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"regexp"
+	"strings"
 
-	"github.com/abibby/jit/linear"
+	"github.com/abibby/jit/cfg"
+	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 )
 
@@ -29,23 +30,12 @@ var openCmd = &cobra.Command{
 	Short:   "Open the jira issue in the browser",
 	Long:    ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		branch, _, err := gitOutput("rev-parse", "--abbrev-ref", "HEAD")
-
+		issueID, err := getIssueID()
 		if err != nil {
 			return err
 		}
 
-		matches := regexp.MustCompile(regexp.QuoteMeta(cfg.GetString("branch_prefix")) + `([A-Za-z]{2,}-[0-9]+)`).FindStringSubmatch(branch)
-
-		c := linear.New()
-
-		issue, err := linear.Issue(cmd.Context(), c, matches[1])
-		if err != nil {
-			return err
-		}
-
-		execOutput("xdg-open", issue.Issue.Url)
-		return nil
+		return open.Start(strings.TrimSuffix(cfg.GetString("jira.base_url"), "/") + "/browse/" + issueID)
 	},
 }
 

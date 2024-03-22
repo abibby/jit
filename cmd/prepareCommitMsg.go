@@ -36,7 +36,7 @@ var prepareCommitMsgCmd = &cobra.Command{
 			return nil
 		}
 
-		issueTag, err := getIssueTag()
+		issueTag, err := getIssueID()
 		if err != nil {
 			return err
 		}

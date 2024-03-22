@@ -41,7 +41,7 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		issueTag, err := getIssueTag()
+		issueTag, err := getIssueID()
 		if err != nil {
 			return err
 		}

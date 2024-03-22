@@ -38,7 +38,7 @@ func SetStatus(c *jira.Client, issueKey, status string) error {
 	return fmt.Errorf("no transition to status %s", status)
 }
 
-func getIssueTag() (string, error) {
+func getIssueID() (string, error) {
 	branch, err := git.CurrentBranch()
 	if err != nil {
 		return "", err
