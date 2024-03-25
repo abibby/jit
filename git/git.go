@@ -53,18 +53,17 @@ func BranchName(issue *jira.Issue, message string) string {
 	return cfg.GetString("branch_prefix") + PrepBranchName(issue.Key+" "+message)
 }
 func PrepBranchName(str string) string {
-	str = strings.ReplaceAll(str, " ", "-")
-	str = regexp.MustCompile(`[^A-Za-z0-9\-]`).ReplaceAllString(str, "")
+	str = regexp.MustCompile(`[^A-Za-z0-9\-]`).ReplaceAllString(str, "-")
 	str = strings.ToLower(str)
-	str = removeRepeats(str)
+	str = removeRepeatDashes(str)
 	return str
 }
 
-func removeRepeats(s string) string {
+func removeRepeatDashes(s string) string {
 	result := make([]rune, 0, len(s))
 	last := rune(0)
 	for _, c := range s {
-		if c == last && (c == ' ' || c == '-') {
+		if c == last && c == '-' {
 			continue
 		}
 		result = append(result, c)
