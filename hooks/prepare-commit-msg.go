@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path"
+	"time"
 
 	"github.com/abibby/jit/git"
 	"github.com/abibby/jit/jirahelper"
@@ -69,7 +70,9 @@ func LogCommits(msgFile, commitType string) error {
 		return fmt.Errorf("failed to get home dir: %v", err)
 	}
 
-	f, err := os.OpenFile(path.Join(home, ".config/jit/log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	day := time.Now().Format(time.DateOnly)
+
+	f, err := os.OpenFile(path.Join(home, ".config/jit/"+day+".log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return fmt.Errorf("failed to open log: %v", err)
 	}
