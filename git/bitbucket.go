@@ -7,24 +7,29 @@ import (
 	"github.com/abibby/jit/cfg"
 	"github.com/abibby/jit/lodash"
 	"github.com/ktrysmt/go-bitbucket"
+
+	jitbb "github.com/abibby/jit/bitbucket"
 )
 
 type Bitbucket struct {
-	client *bitbucket.Client
+	client    *bitbucket.Client
+	jitClient *jitbb.Client
 }
 
 func NewBitbucket(ctx context.Context) *Bitbucket {
-	client := bitbucket.NewBasicAuth(
-		cfg.GetString("bitbucket.username"),
-		cfg.GetString("bitbucket.password"),
-	)
-
 	return &Bitbucket{
-		client: client,
+		client: bitbucket.NewBasicAuth(
+			cfg.GetString("bitbucket.username"),
+			cfg.GetString("bitbucket.password"),
+		),
+		jitClient: jitbb.NewClient(jitbb.NewBasicAuth(
+			cfg.GetString("bitbucket.username"),
+			cfg.GetString("bitbucket.password"),
+		)),
 	}
 }
 
-func (bb Bitbucket) MainBranchName(ctx context.Context) (string, error) {
+func (bb *Bitbucket) MainBranchName(ctx context.Context) (string, error) {
 	u, err := UrlParts()
 	if err != nil {
 		return "", err
@@ -41,7 +46,7 @@ func (bb Bitbucket) MainBranchName(ctx context.Context) (string, error) {
 	return repo.Mainbranch.Name, nil
 }
 
-func (bb Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (*PullRequest, error) {
+func (bb *Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (PullRequest, error) {
 	u, err := UrlParts()
 	if err != nil {
 		return nil, err
@@ -64,17 +69,40 @@ func (bb Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (*Pul
 		return nil, fmt.Errorf("could not create pull request: %w", err)
 	}
 
-	url, err := lodash.GetString(pr, "links.html.href")
+	return bb.translatePR(pr)
+}
+
+func (bb *Bitbucket) ListPRs(ctx context.Context) ([]PullRequest, error) {
+	prs, err := bb.jitClient.PullRequests.User("adambibby")
+	if err != nil {
+		return nil, err
+	}
+	outPRs := make([]PullRequest, len(prs.Values))
+	for i, pr := range prs.Values {
+		outPRs[i] = pr
+	}
+	return outPRs, nil
+}
+
+func (bb *Bitbucket) translatePR(bbPR any) (*SimplePullRequest, error) {
+	url, err := lodash.Get[string](bbPR, "links.html.href")
 	if err != nil {
 		return nil, fmt.Errorf("could not extract the url: %w", err)
 	}
 
-	return &PullRequest{
-		URL: url,
+	return &SimplePullRequest{
+		url: url,
 	}, nil
 }
 
-func (bb Bitbucket) DiffURL(ctx context.Context) (string, error) {
+// func (bb *Bitbucket) translateJitPR(bbPR *jitbb.PullRequest) *PullRequest {
+// 	return &PullRequest{
+// 		URL:          bbPR.Links["html"].Href,
+// 		CommentCount: bbPR.CommentCount,
+// 	}
+// }
+
+func (bb *Bitbucket) DiffURL(ctx context.Context) (string, error) {
 	parts, err := UrlParts()
 	if err != nil {
 		return "", err

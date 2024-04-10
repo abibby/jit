@@ -50,7 +50,7 @@ func TestGet(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.Path, func(t *testing.T) {
 
-			result, err := Get(tc.In, tc.Path)
+			result, err := Get[any](tc.In, tc.Path)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.Out, result)
 		})

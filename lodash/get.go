@@ -2,11 +2,25 @@ package lodash
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 )
 
-func Get(v any, path string) (any, error) {
+func Get[T any](v any, path string) (T, error) {
+	result, err := get(v, path)
+	if err != nil {
+		var zero T
+		return zero, err
+	}
+	typedResult, ok := result.(T)
+	if !ok {
+		var zero T
+		return zero, fmt.Errorf("the value is %s expected %s", reflect.TypeOf(result), reflect.TypeOf(zero))
+	}
+	return typedResult, nil
+}
+func get(v any, path string) (any, error) {
 	if path == "" {
 		return v, nil
 	}
@@ -18,26 +32,14 @@ func Get(v any, path string) (any, error) {
 	}
 	switch v := v.(type) {
 	case map[string]any:
-		return Get(v[currentPart], newPath)
+		return get(v[currentPart], newPath)
 	case []any:
 		i, err := strconv.Atoi(currentPart)
 		if err != nil {
 			return nil, fmt.Errorf("invalid array index %s: %e", currentPart, err)
 		}
-		return Get(v[i], newPath)
+		return get(v[i], newPath)
 	default:
 		return nil, fmt.Errorf("no value at path %s", path)
 	}
-}
-
-func GetString(v any, path string) (string, error) {
-	result, err := Get(v, path)
-	if err != nil {
-		return "", err
-	}
-	str, ok := result.(string)
-	if !ok {
-		return "", fmt.Errorf("the value is not a string")
-	}
-	return str, nil
 }

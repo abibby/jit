@@ -104,7 +104,7 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("Your PR os up at %s\n", pr.URL)
+		fmt.Printf("Your PR os up at %s\n", pr.GetURL())
 		return nil
 	},
 }

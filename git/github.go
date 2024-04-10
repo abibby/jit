@@ -24,7 +24,7 @@ func NewGithub(ctx context.Context) *Github {
 	}
 }
 
-func (gh Github) MainBranchName(ctx context.Context) (string, error) {
+func (gh *Github) MainBranchName(ctx context.Context) (string, error) {
 	u, err := UrlParts()
 	if err != nil {
 		return "", err
@@ -41,7 +41,7 @@ func (gh Github) MainBranchName(ctx context.Context) (string, error) {
 	return *rep.DefaultBranch, nil
 }
 
-func (gh Github) CreatePR(ctx context.Context, opt *PullRequestOptions) (*PullRequest, error) {
+func (gh *Github) CreatePR(ctx context.Context, opt *PullRequestOptions) (PullRequest, error) {
 	u, err := UrlParts()
 	if err != nil {
 		return nil, err
@@ -64,15 +64,21 @@ func (gh Github) CreatePR(ctx context.Context, opt *PullRequestOptions) (*PullRe
 		return nil, err
 	}
 
-	return &PullRequest{
-		URL: pr.GetHTMLURL(),
-	}, nil
+	return gh.translatePR(pr), nil
 }
 
+func (gh *Github) ListPRs(ctx context.Context) ([]PullRequest, error) {
+	return []PullRequest{}, nil
+}
+func (gh *Github) translatePR(ghPR *github.PullRequest) *SimplePullRequest {
+	return &SimplePullRequest{
+		url: ghPR.GetHTMLURL(),
+	}
+}
 func ptr[T any](v T) *T {
 	return &v
 }
 
-func (gh Github) DiffURL(ctx context.Context) (string, error) {
+func (gh *Github) DiffURL(ctx context.Context) (string, error) {
 	return "", nil
 }

@@ -44,8 +44,9 @@ var initCmd = &cobra.Command{
 		//  prepare-commit-msg
 		//  push-to-checkout
 		//  update
-		m := map[string]string{
+		hooks := map[string]string{
 			"prepare-commit-msg": prepareCommitMsgCmd.Use,
+			"post-commit":        postCommitCmd.Use,
 		}
 		root, err := git.Root()
 		if err != nil {
@@ -55,17 +56,21 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for hook, command := range m {
+		for hook, command := range hooks {
 			file := filepath.Join(root, "hooks", hook)
 
 			err = os.Remove(file)
 			if errors.Is(err, os.ErrNotExist) {
+				// fallthrough
 			} else if err != nil {
 				fmt.Printf("%#v", err)
 				return err
 			}
 
-			return os.WriteFile(file, []byte(fmt.Sprintf("%s %s \"$@\"\n", ex, command)), 0777)
+			err = os.WriteFile(file, []byte(fmt.Sprintf("%s %s \"$@\"\n", ex, command)), 0777)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
