@@ -70,9 +70,14 @@ func LogCommits(msgFile, commitType string) error {
 		return fmt.Errorf("failed to get home dir: %v", err)
 	}
 
-	day := time.Now().Format(time.DateOnly)
+	dir := path.Join(home, ".config/jit/logs")
+	err = os.MkdirAll(dir, 0o777)
+	if err != nil {
+		return fmt.Errorf("failed to create log dir: %v", err)
+	}
 
-	f, err := os.OpenFile(path.Join(home, ".config/jit/"+day+".log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	day := time.Now().Format(time.DateOnly)
+	f, err := os.OpenFile(path.Join(dir, day+".log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return fmt.Errorf("failed to open log: %v", err)
 	}
