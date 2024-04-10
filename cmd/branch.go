@@ -22,6 +22,7 @@ import (
 
 	"github.com/abibby/jit/cfg"
 	"github.com/abibby/jit/git"
+	"github.com/abibby/jit/jirahelper"
 	"github.com/manifoldco/promptui"
 	"github.com/range-labs/go-asana/asana"
 	"github.com/spf13/cobra"
@@ -43,7 +44,7 @@ var branchCmd = &cobra.Command{
 			message = strings.Join(args[1:], " ")
 		}
 
-		c, err := jiraClient()
+		c, err := jirahelper.NewClient()
 		if err != nil {
 			return err
 		}

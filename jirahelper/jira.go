@@ -1,4 +1,4 @@
-package cmd
+package jirahelper
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"github.com/andygrunwald/go-jira"
 )
 
-func jiraClient() (*jira.Client, error) {
+func NewClient() (*jira.Client, error) {
 	tp := jira.BasicAuthTransport{
 		Username: cfg.GetString("jira.username"),
 		Password: cfg.GetString("jira.password"),
@@ -38,7 +38,7 @@ func SetStatus(c *jira.Client, issueKey, status string) error {
 	return fmt.Errorf("no transition to status %s", status)
 }
 
-func getIssueID() (string, error) {
+func GetIssueID() (string, error) {
 	branch, err := git.CurrentBranch()
 	if err != nil {
 		return "", err

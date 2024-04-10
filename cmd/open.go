@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/abibby/jit/cfg"
+	"github.com/abibby/jit/jirahelper"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 )
@@ -30,7 +31,7 @@ var openCmd = &cobra.Command{
 	Short:   "Open the jira issue in the browser",
 	Long:    ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		issueID, err := getIssueID()
+		issueID, err := jirahelper.GetIssueID()
 		if err != nil {
 			return err
 		}

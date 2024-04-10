@@ -46,7 +46,6 @@ var initCmd = &cobra.Command{
 		//  update
 		hooks := map[string]string{
 			"prepare-commit-msg": prepareCommitMsgCmd.Use,
-			"post-commit":        postCommitCmd.Use,
 		}
 		root, err := git.Root()
 		if err != nil {
@@ -67,7 +66,7 @@ var initCmd = &cobra.Command{
 				return err
 			}
 
-			err = os.WriteFile(file, []byte(fmt.Sprintf("%s %s \"$@\"\n", ex, command)), 0777)
+			err = os.WriteFile(file, []byte(fmt.Sprintf("exec %s %s \"$@\"\n", ex, command)), 0777)
 			if err != nil {
 				return err
 			}
