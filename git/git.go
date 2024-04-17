@@ -12,7 +12,7 @@ import (
 
 	"bitbucket.org/zombiezen/cardcpx/natsort"
 	"github.com/abibby/jit/cfg"
-	"github.com/andygrunwald/go-jira"
+	"github.com/abibby/jit/pm"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/exp/constraints"
 )
@@ -46,11 +46,11 @@ func execRaw(command string, stdout, stderr io.Writer, options ...string) error 
 	return cmd.Run()
 }
 
-func BranchName(issue *jira.Issue, message string) string {
+func BranchName(issue *pm.Issue, message string) string {
 	if message == "" {
-		message = issue.Fields.Summary
+		message = issue.Title
 	}
-	return cfg.GetString("branch_prefix") + PrepBranchName(issue.Key+" "+message)
+	return cfg.GetString("branch_prefix") + PrepBranchName(issue.ID+" "+message)
 }
 func PrepBranchName(str string) string {
 	str = regexp.MustCompile(`[^A-Za-z0-9\-]`).ReplaceAllString(str, "-")
@@ -266,4 +266,17 @@ func (u *GitUrl) String() string {
 		return fmt.Sprintf("git@%s:%s/%s.git", u.Host, u.Owner, u.Repo)
 	}
 	return fmt.Sprintf("https://%s/%s/%s.git", u.Host, u.Owner, u.Repo)
+}
+
+func GetIssueID() (string, error) {
+	branch, err := CurrentBranch()
+	if err != nil {
+		return "", err
+	}
+
+	matches := regexp.MustCompile(`[A-Za-z]{2,}-\d+`).FindStringSubmatch(branch)
+	if matches == nil {
+		return "", nil
+	}
+	return strings.ToUpper(matches[0]), err
 }

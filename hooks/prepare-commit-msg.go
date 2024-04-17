@@ -3,13 +3,10 @@ package hooks
 import (
 	"bytes"
 	"fmt"
-	"log/slog"
 	"os"
-	"path"
-	"time"
 
 	"github.com/abibby/jit/git"
-	"github.com/abibby/jit/jirahelper"
+	"github.com/abibby/jit/jitlog"
 )
 
 type PrepareCommitMsg func(msgFile, commitType string) error
@@ -25,7 +22,7 @@ func AddIssueTagToCommit(msgFile, commitType string) error {
 		return nil
 	}
 
-	issueTag, err := jirahelper.GetIssueID()
+	issueTag, err := git.GetIssueID()
 	if err != nil {
 		return err
 	}
@@ -65,23 +62,10 @@ func LogCommits(msgFile, commitType string) error {
 		return fmt.Errorf("failed to get url parts: %v", err)
 	}
 
-	home, err := os.UserHomeDir()
+	logger, err := jitlog.Logger("commit")
 	if err != nil {
-		return fmt.Errorf("failed to get home dir: %v", err)
+		return fmt.Errorf("failed to open logger: %v", err)
 	}
-
-	dir := path.Join(home, ".config/jit/logs")
-	err = os.MkdirAll(dir, 0o777)
-	if err != nil {
-		return fmt.Errorf("failed to create log dir: %v", err)
-	}
-
-	day := time.Now().Format(time.DateOnly)
-	f, err := os.OpenFile(path.Join(dir, day+".log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if err != nil {
-		return fmt.Errorf("failed to open log: %v", err)
-	}
-	logger := slog.New(slog.NewJSONHandler(f, nil))
 
 	msg, err := os.ReadFile(msgFile)
 	if err != nil {

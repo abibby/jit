@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/abibby/jit/git"
-	"github.com/abibby/jit/jirahelper"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +41,7 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		issueTag, err := jirahelper.GetIssueID()
+		issueTag, err := git.GetIssueID()
 		if err != nil {
 			return err
 		}
