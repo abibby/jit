@@ -78,8 +78,22 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		c := exec.Command("code", "--wait", msgFile)
-		c.Run()
+		editor, ok := os.LookupEnv("VISUAL")
+		if !ok {
+			editor, ok = os.LookupEnv("EDITOR")
+			if !ok {
+				editor = "code --wait"
+			}
+		}
+
+		c := exec.Command("sh", "-c", editor+" '"+msgFile+"'")
+		c.Stderr = os.Stderr
+		c.Stdin = os.Stdin
+		c.Stdout = os.Stdout
+		err = c.Run()
+		if err != nil {
+			return err
+		}
 
 		commitMsgBytes, err := os.ReadFile(msgFile)
 		if err != nil {

@@ -15,7 +15,9 @@ limitations under the License.
 */
 package main
 
-import "github.com/abibby/jit/cmd"
+import (
+	"github.com/abibby/jit/cmd"
+)
 
 func main() {
 	cmd.Execute()

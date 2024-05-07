@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,6 +17,7 @@ type Client struct {
 	baseURL    string
 
 	PullRequests *PullRequests
+	Repositories *Repositories
 }
 
 func NewClient(auth Authenticator) *Client {
@@ -26,6 +28,7 @@ func NewClient(auth Authenticator) *Client {
 	}
 
 	c.PullRequests = &PullRequests{c: c}
+	c.Repositories = &Repositories{c: c}
 	return c
 }
 func NewBasicAuth(username, password string) *BasicAuth {
@@ -48,7 +51,14 @@ func (c *Client) newRequest(method, url string, body io.Reader) (*http.Request, 
 }
 
 func (c *Client) do(r *http.Request) (*http.Response, error) {
-	return c.httpClient.Do(r)
+	resp, err := c.httpClient.Do(r)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("bitbucket error %s on %s", resp.Status, r.URL)
+	}
+	return resp, nil
 }
 
 func (c *Client) Get(url string) (*http.Response, error) {
