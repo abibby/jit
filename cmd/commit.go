@@ -11,16 +11,17 @@ import (
 
 // commitCmd represents the commit command
 var commitCmd = &cobra.Command{
-	Use:   "commit",
-	Short: "git commit",
-	Long:  ``,
-	Args:  cobra.RangeArgs(0, 1),
+	Use:     "commit",
+	Short:   "git add -A + git commit",
+	Aliases: []string{"c"},
+	Long:    ``,
+	Args:    cobra.RangeArgs(0, 1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var msg string
 		var err error
 
 		if len(args) < 1 {
-			msg, err = editor.String("commit message")
+			msg, err = editor.String("")
 			if err != nil {
 				return err
 			}

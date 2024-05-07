@@ -23,7 +23,7 @@ import (
 // checkoutCmd represents the checkout command
 var checkoutCmd = &cobra.Command{
 	Use:     "checkout [issue id]",
-	Aliases: []string{"c"},
+	Aliases: []string{"co"},
 	Short:   "checkout a branch from a Jira key",
 	Long:    ``,
 	Args:    cobra.MaximumNArgs(1),
