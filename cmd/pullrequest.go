@@ -19,10 +19,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 
+	"github.com/abibby/jit/editor"
 	"github.com/abibby/jit/git"
 	"github.com/spf13/cobra"
 )
@@ -78,19 +78,7 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		editor, ok := os.LookupEnv("VISUAL")
-		if !ok {
-			editor, ok = os.LookupEnv("EDITOR")
-			if !ok {
-				editor = "code --wait"
-			}
-		}
-
-		c := exec.Command("sh", "-c", editor+" '"+msgFile+"'")
-		c.Stderr = os.Stderr
-		c.Stdin = os.Stdin
-		c.Stdout = os.Stdout
-		err = c.Run()
+		err = editor.File(msgFile)
 		if err != nil {
 			return err
 		}
