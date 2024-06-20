@@ -17,6 +17,7 @@ func GetProvider(ctx context.Context) (Provider, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	switch u.Host {
 	case "github.com":
 		return NewGithub(ctx), nil

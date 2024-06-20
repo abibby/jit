@@ -7,6 +7,7 @@ type PullRequestOptions struct {
 	Description  string
 	SourceBranch string
 	BaseBranch   string
+	Reviewers    []string
 }
 type PullRequest interface {
 	GetURL() string

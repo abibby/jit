@@ -1,17 +1,16 @@
 package cfg
 
 import (
-	"log"
 	"os/exec"
-	"strconv"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
 
-func GetString(key string) string {
+func get(key string) any {
 	suffix := "_command"
 	if viper.IsSet(key) {
-		return viper.GetString(key)
+		return viper.Get(key)
 
 	} else if viper.IsSet(key + suffix) {
 		newKey := key[:len(key)-len(suffix)]
@@ -26,13 +25,14 @@ func GetString(key string) string {
 	return ""
 }
 
+func GetString(key string) string {
+	return cast.ToString(get(key))
+}
 func GetInt(key string) int {
-	s := GetString(key)
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		log.Print(err)
-	}
-	return i
+	return cast.ToInt(get(key))
+}
+func GetStringSlice(key string) []string {
+	return cast.ToStringSlice(get(key))
 }
 func GetIntDefault(key string, defaultValue int) int {
 	i := GetInt(key)

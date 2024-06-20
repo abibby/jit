@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/abibby/jit/git"
 	"github.com/spf13/cobra"
 
 	"github.com/spf13/viper"
@@ -60,26 +61,31 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
+
 		config, err := os.UserConfigDir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		if err == nil {
+			viper.AddConfigPath(path.Join(config, "jit"))
 		}
 		home, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		if err == nil {
+			viper.AddConfigPath(path.Join(home, ".config", "jit"))
 		}
-		viper.AddConfigPath(path.Join(config, "jit"))
-		viper.AddConfigPath(path.Join(home, ".config", "jit"))
-		viper.SetConfigName("config")
 	}
 
+	viper.SetConfigName("config")
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	// viper.ReadInConfig()
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+
+	gitRoot, err := git.Root()
+	if err == nil {
+		viper.AddConfigPath(path.Join(gitRoot, ".jit"))
+		if err := viper.MergeInConfig(); err == nil {
+			fmt.Println("Adding local config file:", viper.ConfigFileUsed())
+		}
 	}
 }

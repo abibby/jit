@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/abibby/jit/cfg"
 	"github.com/abibby/jit/editor"
 	"github.com/abibby/jit/git"
 	"github.com/manifoldco/promptui"
@@ -119,11 +120,13 @@ var pullrequestCmd = &cobra.Command{
 			return nil
 		}
 
+		reviewers := cfg.GetStringSlice("pullrequest.default_reviewers")
 		pr, err := git.CreatePR(cmd.Context(), &git.PullRequestOptions{
 			Title:        title,
 			Description:  commitMsg,
 			SourceBranch: branch,
 			BaseBranch:   base,
+			Reviewers:    reviewers,
 		})
 		if err != nil {
 			return err

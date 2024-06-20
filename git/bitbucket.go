@@ -61,6 +61,8 @@ func (bb *Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (Pul
 		Description:       opt.Description,
 		SourceBranch:      opt.SourceBranch,
 		DestinationBranch: opt.BaseBranch,
+
+		Reviewers: opt.Reviewers,
 	})
 	if err != nil {
 		if err, ok := err.(*bitbucket.UnexpectedResponseStatusError); ok {
