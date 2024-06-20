@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/abibby/jit/editor"
@@ -51,7 +52,7 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		title := strings.ReplaceAll(branch, "-", " ")
+		title := strings.ReplaceAll(branch[len(issueTag):], "-", " ")
 		if issueTag != "" {
 			title = issueTag + ": " + title
 		}
@@ -61,19 +62,21 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		templateBytes, err := os.ReadFile(path.Join(root, ".github/pull_request_template.md"))
+		template, err := os.ReadFile(path.Join(root, ".github/pull_request_template.md"))
 		if errors.Is(err, os.ErrNotExist) {
 			// empty
 		} else if err != nil {
 			return err
 		}
 
-		template := string(templateBytes)
-
-		template = fmt.Sprintf("# %s\n\n%s", title, strings.ReplaceAll(template, "MDASH-xxxx", issueTag))
+		tagRE := regexp.MustCompile(`[A-Z]+-(\d+|x+)`)
+		template = append(
+			[]byte(fmt.Sprintf("# %s\n\n", title)),
+			tagRE.ReplaceAll(template, []byte(issueTag))...,
+		)
 
 		msgFile := "/tmp/jit-pull-request.md"
-		err = os.WriteFile(msgFile, []byte(template), 0644)
+		err = os.WriteFile(msgFile, template, 0644)
 		if err != nil {
 			return err
 		}

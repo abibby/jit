@@ -10,9 +10,10 @@ import (
 
 // pushCmd represents the push command
 var pushCmd = &cobra.Command{
-	Use:   "push",
-	Short: "git push",
-	Long:  ``,
+	Use:     "push",
+	Short:   "git push",
+	Aliases: []string{"p"},
+	Long:    ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return git.Run("push")
 	},
