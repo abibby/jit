@@ -25,6 +25,7 @@ import (
 
 	"github.com/abibby/jit/editor"
 	"github.com/abibby/jit/git"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
 
@@ -53,9 +54,12 @@ var pullrequestCmd = &cobra.Command{
 		}
 
 		title := strings.ReplaceAll(branch[len(issueTag):], "-", " ")
+		title = strings.TrimSpace(title)
+		title = strings.ToUpper(title[:1]) + title[1:]
 		if issueTag != "" {
 			title = issueTag + ": " + title
 		}
+		title = regexp.MustCompile(` +`).ReplaceAllString(title, " ")
 
 		base, err := git.DefaultBranch(cmd.Context())
 		if err != nil {
@@ -97,6 +101,22 @@ var pullrequestCmd = &cobra.Command{
 			parts := strings.SplitN(commitMsg, "\n", 2)
 			title = strings.TrimSpace(parts[0][1:])
 			commitMsg = strings.TrimSpace(parts[1])
+		}
+
+		prompt := promptui.Select{
+			Label: "Are you ready to create this PR?",
+			Items: []string{
+				"Yes",
+				"No",
+			},
+		}
+
+		_, val, err := prompt.Run()
+		if err != nil {
+			return err
+		}
+		if val != "Yes" {
+			return nil
 		}
 
 		pr, err := git.CreatePR(cmd.Context(), &git.PullRequestOptions{
