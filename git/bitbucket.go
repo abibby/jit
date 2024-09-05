@@ -6,6 +6,7 @@ import (
 
 	"github.com/abibby/jit/cfg"
 	"github.com/abibby/jit/lodash"
+	"github.com/abibby/salusa/slices"
 	"github.com/ktrysmt/go-bitbucket"
 
 	jitbb "github.com/abibby/jit/bitbucket"
@@ -52,6 +53,21 @@ func (bb *Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (Pul
 		return nil, err
 	}
 
+	reviewers := make([]string, 0, len(opt.Reviewers))
+
+	members, err := bb.client.Workspaces.Members(u.Owner)
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range opt.Reviewers {
+		u, ok := slices.Find(members.Members, func(u bitbucket.User) bool {
+			return r == u.Uuid || r == u.DisplayName || r == u.Nickname || r == u.Username || r == u.AccountId
+		})
+		if ok {
+			reviewers = append(reviewers, u.Uuid)
+		}
+	}
+
 	pr, err := bb.client.Repositories.PullRequests.Create(&bitbucket.PullRequestsOptions{
 		Message:  opt.Description,
 		Owner:    u.Owner,
@@ -62,7 +78,7 @@ func (bb *Bitbucket) CreatePR(ctx context.Context, opt *PullRequestOptions) (Pul
 		SourceBranch:      opt.SourceBranch,
 		DestinationBranch: opt.BaseBranch,
 
-		Reviewers: opt.Reviewers,
+		Reviewers: reviewers,
 	})
 	if err != nil {
 		if err, ok := err.(*bitbucket.UnexpectedResponseStatusError); ok {
@@ -84,6 +100,13 @@ func (bb *Bitbucket) ListPRs(ctx context.Context) ([]PullRequest, error) {
 		outPRs[i] = pr
 	}
 	return outPRs, nil
+}
+func (bb *Bitbucket) ListUsers(ctx context.Context) (*bitbucket.WorkspaceMembers, error) {
+	workspace, err := bb.client.Workspaces.Members("ownersbox")
+	if err != nil {
+		return nil, err
+	}
+	return workspace, nil
 }
 
 func (bb *Bitbucket) translatePR(bbPR any) (*SimplePullRequest, error) {

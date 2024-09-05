@@ -22,13 +22,17 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/abibby/jit/cfg"
 	"github.com/abibby/jit/editor"
 	"github.com/abibby/jit/git"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
+
+var tagRE = sync.OnceValue(func() *regexp.Regexp {
+	return regexp.MustCompile(`[A-Z]+-(\d+|x+)`)
+})
 
 // pullrequestCmd represents the pullrequest command
 var pullrequestCmd = &cobra.Command{
@@ -67,17 +71,19 @@ var pullrequestCmd = &cobra.Command{
 			return err
 		}
 
-		template, err := os.ReadFile(path.Join(root, ".github/pull_request_template.md"))
+		template, err := readFirst(
+			path.Join(root, ".github/pull_request_template.md"),
+			path.Join(cfgDir, "pull_request_template.md"),
+		)
 		if errors.Is(err, os.ErrNotExist) {
 			// empty
 		} else if err != nil {
 			return err
 		}
 
-		tagRE := regexp.MustCompile(`[A-Z]+-(\d+|x+)`)
 		template = append(
 			[]byte(fmt.Sprintf("# %s\n\n", title)),
-			tagRE.ReplaceAll(template, []byte(issueTag))...,
+			tagRE().ReplaceAll(template, []byte(issueTag))...,
 		)
 
 		msgFile := "/tmp/jit-pull-request.md"
@@ -104,23 +110,14 @@ var pullrequestCmd = &cobra.Command{
 			commitMsg = strings.TrimSpace(parts[1])
 		}
 
-		prompt := promptui.Select{
-			Label: "Are you ready to create this PR?",
-			Items: []string{
-				"Yes",
-				"No",
-			},
-		}
-
-		_, val, err := prompt.Run()
-		if err != nil {
-			return err
-		}
-		if val != "Yes" {
+		if !ask("Are you ready to create this PR?") {
 			return nil
 		}
 
-		reviewers := cfg.GetStringSlice("pullrequest.default_reviewers")
+		var reviewers []string
+		if ask("Do you want to add default reviewers?") {
+			reviewers = cfg.GetStringSlice("pullrequest.default_reviewers")
+		}
 		pr, err := git.CreatePR(cmd.Context(), &git.PullRequestOptions{
 			Title:        title,
 			Description:  commitMsg,
@@ -149,4 +146,17 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// pullrequestCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func readFirst(files ...string) ([]byte, error) {
+	for _, file := range files {
+		if file == "" {
+			continue
+		}
+		b, err := os.ReadFile(file)
+		if err == nil {
+			return b, nil
+		}
+	}
+	return nil, os.ErrNotExist
 }

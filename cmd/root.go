@@ -27,6 +27,7 @@ import (
 )
 
 var cfgFile string
+var cfgDir string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -78,7 +79,9 @@ func initConfig() {
 	// If a config file is found, read it in.
 	// viper.ReadInConfig()
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		cfgFile = viper.ConfigFileUsed()
+		cfgDir = path.Dir(cfgFile)
+		fmt.Println("Using config file:", cfgFile)
 	}
 
 	gitRoot, err := git.Root()
