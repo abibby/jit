@@ -56,6 +56,7 @@ func PrepBranchName(str string) string {
 	str = regexp.MustCompile(`[^A-Za-z0-9\-]`).ReplaceAllString(str, "-")
 	str = strings.ToLower(str)
 	str = removeRepeatDashes(str)
+	str = strings.Trim(str, "-")
 	return str
 }
 
