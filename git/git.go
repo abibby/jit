@@ -47,10 +47,16 @@ func execRaw(command string, stdout, stderr io.Writer, options ...string) error 
 }
 
 func BranchName(issue *pm.Issue, message string) string {
-	if message == "" {
-		message = issue.Title
+	nameParts := make([]string, 0, 2)
+	if issue != nil {
+		nameParts = append(nameParts, issue.ID)
 	}
-	return cfg.GetString("branch_prefix") + PrepBranchName(issue.ID+" "+message)
+	if message != "" {
+		nameParts = append(nameParts, message)
+	} else {
+		nameParts = append(nameParts, issue.Title)
+	}
+	return cfg.GetString("branch_prefix") + PrepBranchName(strings.Join(nameParts, "-"))
 }
 func PrepBranchName(str string) string {
 	str = regexp.MustCompile(`[^A-Za-z0-9\-]`).ReplaceAllString(str, "-")

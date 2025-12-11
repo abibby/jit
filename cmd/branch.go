@@ -35,7 +35,6 @@ var branchCmd = &cobra.Command{
 	Long:    ``,
 	Args:    cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		issueID := prepIssueID(args[0])
 
 		message := ""
@@ -47,10 +46,12 @@ var branchCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-
-		issue, err := p.GetIssue(issueID)
-		if err != nil {
-			return err
+		var issue *pm.Issue
+		if issueID != "" {
+			issue, err = p.GetIssue(issueID)
+			if err != nil {
+				return err
+			}
 		}
 
 		branch := git.BranchName(issue, message)
@@ -111,6 +112,8 @@ var branchCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(branchCmd)
+
+	checkoutCmd.Flags().Bool("no-jira", false, "don't add a jira id to the branch")
 }
 
 func checkoutDefaultBranch(ctx context.Context) error {
@@ -144,6 +147,9 @@ func confirm(message string, defaultValue bool) bool {
 }
 
 func prepIssueID(rawID string) string {
+	if rawID == "-" {
+		return ""
+	}
 	board := cfg.GetString("board")
 	if isNumeric(rawID) && board != "" {
 		return board + "-" + rawID
