@@ -78,7 +78,7 @@ func transformStatus(s string) Status {
 	return StatusUnknown
 }
 
-func (j *JiraProvider) SetStatus(issueKey, status string) error {
+func (j *JiraProvider) SetStatus(issueKey string, status Status) error {
 	c, err := j.client()
 	if err != nil {
 		return err
@@ -89,7 +89,7 @@ func (j *JiraProvider) SetStatus(issueKey, status string) error {
 	}
 
 	for _, transition := range transitions {
-		if transition.To.Name == status {
+		if transition.To.Name == string(status) {
 			_, err = c.Issue.DoTransition(issueKey, transition.ID)
 			if err != nil {
 				return err

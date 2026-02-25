@@ -1,7 +1,7 @@
 package pm
 
 type Provider interface {
-	SetStatus(issueID, status string) error
+	SetStatus(issueID string, status Status) error
 	GetIssue(issueID string) (*Issue, error)
 	GetMyIssues() ([]*Issue, error)
 }

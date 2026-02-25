@@ -90,21 +90,25 @@ var branchCmd = &cobra.Command{
 		}
 
 		// if confirm("Do you want to move this issue to in progress on Jira?", false) {
-		// 	u, _, err := c.User.GetSelf()
+		// 	err = p.SetStatus(issueID, pm.StatusInProgress)
 		// 	if err != nil {
 		// 		return err
 		// 	}
-		// 	if issue.Fields.Assignee.AccountID != u.AccountID {
-		// 		_, err = c.Issue.UpdateAssignee(issue.ID, u)
-		// 		if err != nil {
-		// 			return err
-		// 		}
-		// 	}
+		// 	// u, _, err := c.User.GetSelf()
+		// 	// if err != nil {
+		// 	// 	return err
+		// 	// }
+		// 	// if issue.Fields.Assignee.AccountID != u.AccountID {
+		// 	// 	_, err = c.Issue.UpdateAssignee(issue.ID, u)
+		// 	// 	if err != nil {
+		// 	// 		return err
+		// 	// 	}
+		// 	// }
 
-		// 	err = SetStatus(c, issue.ID, cfg.GetString("in_progress_status"))
-		// 	if err != nil {
-		// 		return err
-		// 	}
+		// 	// err = SetStatus(c, issue.ID, cfg.GetString("in_progress_status"))
+		// 	// if err != nil {
+		// 	// 	return err
+		// 	// }
 		// }
 		return nil
 	},

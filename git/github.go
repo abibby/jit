@@ -80,5 +80,19 @@ func ptr[T any](v T) *T {
 }
 
 func (gh *Github) DiffURL(ctx context.Context) (string, error) {
-	return "", nil
+	parts, err := UrlParts()
+	if err != nil {
+		return "", err
+	}
+
+	branch, err := CurrentBranch()
+	if err != nil {
+		return "", err
+	}
+
+	main, err := gh.MainBranchName(ctx)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("https://github.com/%s/%s/compare/%s...%s", parts.Owner, parts.Repo, main, branch), nil
 }
