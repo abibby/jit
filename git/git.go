@@ -169,7 +169,7 @@ func DefaultBranch(ctx context.Context) (string, error) {
 		if branch == mainBranch {
 			continue
 		}
-		if branch == "develop" {
+		if branch == "develop" || branch == "main" || branch == "master" {
 			devBranches = append(devBranches, branch)
 		}
 		if anyHasPrefix(branch, "release/") {
